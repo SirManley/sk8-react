@@ -1,17 +1,33 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import MainPage from './pages/MainPage';
-import AdminPage from './pages/AdminPage';
-import Skateboards from './pages/Skateboards';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-export default function App() {
+import MainLayout           from './layouts/MainLayout';
+import Home                 from './pages/Home';
+import Admin                from './pages/Admin';
+
+import SkateboardsLayout    from './pages/skateboards/SkateboardsLayout';
+import FeaturedSkateboards  from './pages/skateboards/FeaturedSkateboards';
+import SkateboardsCategory  from './pages/skateboards/SkateboardsCategory';
+
+
+function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/skateboards" element={<Skateboards />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="admin" element={<Admin />} />
+
+          <Route path="skateboards" element={<SkateboardsLayout />}>
+            <Route index element={<FeaturedSkateboards />} />
+            <Route path=":category" element={<SkateboardsCategory />} />
+          </Route>
+
+          {/* …other sections */}
+        </Route>
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
+
+export default App;

@@ -1,3 +1,4 @@
+// This page logs us into Firebase to authorize the pictures
 import React, { useState } from 'react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';

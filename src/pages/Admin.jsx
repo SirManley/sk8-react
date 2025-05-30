@@ -1,3 +1,4 @@
+// File: src/pages/Admin.jsx
 import React, { useState } from 'react';
 import { storage, db } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -5,7 +6,7 @@ import { collection, addDoc } from 'firebase/firestore';
 
 const GROUPS = ['Decks', 'Trucks', 'Wheels', 'Soft Goods'];
 
-export default function AdminPage() {
+export default function Admin() {
   const [form, setForm] = useState({ name: '', description: '', groups: [] });
   const [fullFile, setFullFile] = useState(null);
   const [thumbFile, setThumbFile] = useState(null);
@@ -15,7 +16,9 @@ export default function AdminPage() {
     if (type === 'checkbox') {
       setForm(prev => ({
         ...prev,
-        groups: checked ? [...prev.groups, value] : prev.groups.filter(g => g !== value)
+        groups: checked
+          ? [...prev.groups, value]
+          : prev.groups.filter(g => g !== value),
       }));
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
@@ -40,7 +43,7 @@ export default function AdminPage() {
       imageUrl: fullUrl,
       thumbnailUrl: thumbUrl,
       groups: form.groups,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     alert('Image uploaded successfully!');
@@ -50,7 +53,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <main className="admin-page container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Admin Upload</h1>
       <form onSubmit={handleUpload} className="space-y-4">
         <div>
@@ -108,10 +111,13 @@ export default function AdminPage() {
             ))}
           </div>
         </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
           Upload
         </button>
       </form>
-    </div>
+    </main>
   );
 }
