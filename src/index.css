@@ -24,6 +24,20 @@ header h1 {
   font-size: 3em;
 }
 
+.site-footer {
+  /*background-color: #333;
+  color: white;*/
+  background-color: white;
+  color: black;
+  padding: 1em 0;
+  text-align: center;   /* ← center the footer text */
+}
+
+.site-footer div {
+  font-size: 0.875em;
+}
+
+
 .subtitle {
   font-size: 1em;
   color: #FFFFFF;
@@ -49,8 +63,8 @@ nav ul li a {
 
 /* MainPage-specific thumbnail rule */
 .main-page .thumbnail {
-  width: 60vw;      /* or whatever % you like */
-  height: auto;
+  width: auto;      /* or whatever % you like */
+  height: 35vw;
   display: block;   /* ensures it can be centered */
   margin: 0 auto;   /* centers left–right */
 }
