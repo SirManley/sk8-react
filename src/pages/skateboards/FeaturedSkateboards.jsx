@@ -1,27 +1,54 @@
-// src/pages/skateboards/FeaturedSkateboards.jsx
-import React, { useEffect, useState } from 'react';
-import { db } from '../../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+// src/pages/skateboards/SkateboardsLayout.jsx
+import { NavLink, Outlet } from 'react-router-dom';
 
-export default function FeaturedSkateboards() {
-  const [featured, setFeatured] = useState(null);
+const categories = [
+  'featured',
+  'old-school',
+  'new-school',
+  'shaped',
+  'freestyle',
+  'mike-mcgill',
+  'tony-hawk',
+  'complete-collection'
+];
 
-  useEffect(() => {
-    async function fetchFeatured() {
-      const snap = await getDocs(collection(db, 'images'));
-      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      setFeatured(all.find(item => item.name === 'Main-Wall'));
-    }
-    fetchFeatured();
-  }, []);
+export default function SkateboardsLayout() {
+  return (
+    <div className="skateboards-page flex min-h-screen">
 
-  return featured ? (
-    <img
-      src={featured.thumbnailUrl}
-      alt={featured.name}
-      className="thumbnail object-cover mx-auto"
-    />
-  ) : (
-    <p className="text-center py-8">Loading featured board…</p>
+      {/* Sidebar on the left */}
+      <aside className="w-1/4 bg-gray-800 text-white p-4">
+        <ul className="space-y-2">
+          {categories.map(cat => {
+            const path = cat === 'featured' ? '' : cat;
+            const label =
+              cat === 'featured'
+                ? 'Featured'
+                : cat.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            return (
+              <li key={cat}>
+                <NavLink
+                  to={path}
+                  end={cat === 'featured'}
+                  className={({ isActive }) =>
+                    isActive
+                      ? 'block px-3 py-1 bg-gray-600 rounded'
+                      : 'block px-3 py-1 hover:bg-gray-700 rounded'
+                  }
+                >
+                  {label}
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+      </aside>
+
+      {/* Main content area: centers Outlet horizontally at top */}
+      <main className="flex-1 p-6 flex justify-center items-start overflow-auto">
+        <Outlet />
+      </main>
+
+    </div>
   );
 }

@@ -69,6 +69,11 @@ nav ul li a {
   margin: 0 auto;   /* centers left–right */
 }
 
+/* Temp to find the skateboards sub nav
+.skateboards-page nav {
+  border: 2px dashed red;
+}*/
+
 
 /* =====================================================
    Main Content & Galleries
