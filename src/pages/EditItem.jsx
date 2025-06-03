@@ -56,7 +56,7 @@ const GROUPS = {
 };
 
 export default function EditItem() {
-  const { id } = useParams();            // Grab the ID from /items/:id/edit
+  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
@@ -66,7 +66,7 @@ export default function EditItem() {
     subGroups: []
   });
 
-  // 1. On mount, fetch that single document
+  // Fetch the document on mount
   useEffect(() => {
     const fetchDoc = async () => {
       try {
@@ -77,7 +77,6 @@ export default function EditItem() {
           return;
         }
         const data = snap.data();
-        // Populate form state exactly as Firestore stored it
         setForm({
           name: data.name || '',
           description: data.description || '',
@@ -94,24 +93,22 @@ export default function EditItem() {
     fetchDoc();
   }, [id]);
 
-  // 2. Handle input/checkbox changes (similar to Admin page)
+  // Handle form changes
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
     if (type === 'checkbox') {
       if (name === 'groups') {
         if (checked) {
-          // Selecting a parent: auto‐select its “All-…” subcategory if present
           const parent = value;
           const allSub = GROUPS[parent].find(s => s.startsWith('All-'));
           setForm(prev => ({
             ...prev,
             groups: [...prev.groups, parent],
             subGroups: allSub
-              ? [...new Set([ ...prev.subGroups, allSub ])]
+              ? [...new Set([...prev.subGroups, allSub])]
               : prev.subGroups
           }));
         } else {
-          // Unchecking a parent: remove it and all its children
           const parent = value;
           setForm(prev => ({
             ...prev,
@@ -137,7 +134,7 @@ export default function EditItem() {
     }
   };
 
-  // 3. On Save, call updateDoc()
+  // Save updates to Firestore
   const handleSave = async e => {
     e.preventDefault();
     try {
@@ -149,7 +146,7 @@ export default function EditItem() {
         subGroups: form.subGroups
       });
       alert('Item updated successfully');
-      navigate('/items'); // Go back to the list (or anywhere you like)
+      navigate('/items');
     } catch (error) {
       console.error('Error updating document:', error);
     }
@@ -163,7 +160,7 @@ export default function EditItem() {
     <main className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">Edit Item</h1>
 
-      {/* Link back to the items list */}
+      {/* Back link */}
       <div className="mb-6 text-center">
         <Link
           to="/items"
@@ -173,32 +170,39 @@ export default function EditItem() {
         </Link>
       </div>
 
-      <form onSubmit={handleSave} className="max-w-lg mx-auto space-y-4">
-        {/* Name */}
+      <form onSubmit={handleSave} className="max-w-lg mx-auto space-y-6">
+        {/* Name field */}
         <div>
-          <label className="block mb-1">Name:</label>
+          <label className="block mb-1">
+            <strong>Name:</strong>
+          </label>
           <input
             type="text"
             name="name"
             value={form.name}
             onChange={handleChange}
             required
+            maxLength={100}
             className="border p-2 w-full"
           />
         </div>
 
-        {/* Description */}
+        {/* Description field */}
         <div>
-          <label className="block mb-1">Description:</label>
+          <label className="block mb-1">
+            <strong>Description:</strong>
+          </label>
           <textarea
             name="description"
             value={form.description}
             onChange={handleChange}
+            rows={4}
+            maxLength={400}
             className="border p-2 w-full"
           />
         </div>
 
-        {/* Groups & SubGroups (same logic as Admin.jsx) */}
+        {/* Groups & SubGroups */}
         <div>
           <label className="block mb-2 font-semibold">Groups:</label>
           {Object.entries(GROUPS).map(([parentName, subArr]) => {
@@ -206,7 +210,6 @@ export default function EditItem() {
 
             return (
               <div key={parentName} className="mb-4 border rounded p-2">
-                {/* Parent checkbox */}
                 <label className="flex items-center space-x-2 mb-1">
                   <input
                     type="checkbox"
@@ -219,7 +222,6 @@ export default function EditItem() {
                   <strong>{parentName}</strong>
                 </label>
 
-                {/* Subcategory checkboxes */}
                 <div className="ml-6 flex flex-wrap gap-2">
                   {subArr.map(subName => (
                     <label key={subName} className="flex items-center space-x-1">
@@ -232,11 +234,7 @@ export default function EditItem() {
                         disabled={!parentIsChecked}
                         className="form-checkbox disabled:opacity-50"
                       />
-                      <span
-                        className={
-                          parentIsChecked ? 'text-gray-700' : 'text-gray-400'
-                        }
-                      >
+                      <span className={parentIsChecked ? 'text-gray-700' : 'text-gray-400'}>
                         {subName}
                       </span>
                     </label>
