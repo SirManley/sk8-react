@@ -8,7 +8,7 @@ import Admin                from './pages/Admin';
 
 // ← 1. Import the new ItemsList page
 import ItemsList            from './pages/ItemsList';
-import EditItem from './pages/EditItem';
+import EditItem             from './pages/EditItem';
 import SkateboardsLayout    from './pages/skateboards/SkateboardsLayout';
 import FeaturedSkateboards  from './pages/skateboards/FeaturedSkateboards';
 import SkateboardsCategory  from './pages/skateboards/SkateboardsCategory';

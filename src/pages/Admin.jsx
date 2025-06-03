@@ -171,7 +171,9 @@ export default function Admin() {
         {/* ————————————————————————————— */}
         {/*  Name Field */}
         <div>
-          <label className="block mb-1">Name:</label>
+          <label className="block mb-1">
+            <strong> Name: </strong>
+            </label>
           <input
             type="text"
             name="name"
@@ -185,7 +187,9 @@ export default function Admin() {
         {/* ————————————————————————————— */}
         {/*  Description Field */}
         <div>
-          <label className="block mb-1">Description:</label>
+          <label className="block mb-1">
+            <strong> Description: </strong>
+            </label>
           <textarea
             name="description"
             value={form.description}
