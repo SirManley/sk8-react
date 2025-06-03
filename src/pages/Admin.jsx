@@ -1,5 +1,6 @@
 // src/pages/Admin.jsx
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';          // ← Import Link
 import { storage, db } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
@@ -154,6 +155,18 @@ export default function Admin() {
   return (
     <main className="admin-page container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Admin Upload</h1>
+
+      {/* ————————————————————————————— */}
+      {/*  View All Uploaded Items Button */}
+      <div className="mb-6">
+        <Link
+          to="/items"
+          className="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+        >
+          View All Uploaded Items
+        </Link>
+      </div>
+
       <form onSubmit={handleUpload} className="space-y-4">
         {/* ————————————————————————————— */}
         {/*  Name Field */}
