@@ -8,20 +8,29 @@ import {
   orderBy,
   limit,
   startAfter,
-  doc,
-  deleteDoc
+  doc as firestoreDoc,
+  deleteDoc,
+  updateDoc
 } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytesResumable,
+  getDownloadURL
+} from 'firebase/storage';
 
 export default function ItemsList() {
-  // State for items, loading flags, and pagination cursor
+  // State for items, loading flags, pagination, and upload progress
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [lastVisible, setLastVisible] = useState(null); // Firestore document snapshot
-  const [hasMore, setHasMore] = useState(true); // whether there are more docs to load
-  const navigate = useNavigate();
+  const [lastVisible, setLastVisible] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [uploading, setUploading] = useState({}); 
+  // uploading: { [itemId]: { thumbnail: boolean, image: boolean } }
 
+  const navigate = useNavigate();
   const pageSize = 10; // fetch 10 items per page
 
   // 1. Fetch the first page on mount
@@ -29,7 +38,6 @@ export default function ItemsList() {
     const fetchFirstPage = async () => {
       setLoading(true);
       try {
-        // Build a query ordering by createdAt desc, limit to pageSize
         const firstQuery = query(
           collection(db, 'images'),
           orderBy('createdAt', 'desc'),
@@ -37,18 +45,15 @@ export default function ItemsList() {
         );
         const snapshot = await getDocs(firstQuery);
 
-        // Map docs to data
         const docs = snapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data()
         }));
         setItems(docs);
 
-        // Set the last document for cursor
         const lastDoc = snapshot.docs[snapshot.docs.length - 1];
         setLastVisible(lastDoc || null);
 
-        // If fewer than pageSize docs returned, no more pages
         if (snapshot.docs.length < pageSize) {
           setHasMore(false);
         }
@@ -79,14 +84,11 @@ export default function ItemsList() {
         id: docSnap.id,
         ...docSnap.data()
       }));
-      // Append new items
       setItems((prev) => [...prev, ...docs]);
 
-      // Update cursor
       const newLast = snapshot.docs[snapshot.docs.length - 1];
       setLastVisible(newLast || null);
 
-      // If fewer than pageSize returned, no more pages
       if (snapshot.docs.length < pageSize) {
         setHasMore(false);
       }
@@ -97,18 +99,93 @@ export default function ItemsList() {
     }
   };
 
-  // 3. Delete handler (same as before)
+  // 3. Delete handler
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this item?')) return;
     try {
-      await deleteDoc(doc(db, 'images', id));
+      await deleteDoc(firestoreDoc(db, 'images', id));
       setItems((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
       console.error('Error deleting item:', error);
     }
   };
 
-  // 4. Render loading state
+  // 4. File upload handler (thumbnail or full image)
+  const handleFileUpload = async (e, itemId, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Mark as uploading
+    setUploading((prev) => ({
+      ...prev,
+      [itemId]: {
+        ...(prev[itemId] || {}),
+        [type]: true
+      }
+    }));
+
+    try {
+      const storage = getStorage();
+      const folder = `images/${itemId}`;
+      const fileName = type === 'thumbnail' ? 'thumbnail' : 'full';
+      const ext = file.name.split('.').pop();
+      const path = `${folder}/${fileName}.${ext}`;
+      const sRef = storageRef(storage, path);
+
+      const uploadTask = uploadBytesResumable(sRef, file);
+
+      uploadTask.on(
+        'state_changed',
+        null,
+        (error) => {
+          console.error('Upload error:', error);
+          setUploading((prev) => ({
+            ...prev,
+            [itemId]: {
+              ...(prev[itemId] || {}),
+              [type]: false
+            }
+          }));
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          const docRef = firestoreDoc(db, 'images', itemId);
+          const updateData = {};
+          if (type === 'thumbnail') {
+            updateData.thumbnailUrl = downloadURL;
+          } else {
+            updateData.imageUrl = downloadURL;
+          }
+          await updateDoc(docRef, updateData);
+
+          setItems((prevItems) =>
+            prevItems.map((it) =>
+              it.id === itemId ? { ...it, ...updateData } : it
+            )
+          );
+
+          setUploading((prev) => ({
+            ...prev,
+            [itemId]: {
+              ...(prev[itemId] || {}),
+              [type]: false
+            }
+          }));
+        }
+      );
+    } catch (err) {
+      console.error('Unexpected upload error:', err);
+      setUploading((prev) => ({
+        ...prev,
+        [itemId]: {
+          ...(prev[itemId] || {}),
+          [type]: false
+        }
+      }));
+    }
+  };
+
+  // 5. Render loading state
   if (loading) {
     return <div className="p-4 text-center">Loading…</div>;
   }
@@ -145,47 +222,76 @@ export default function ItemsList() {
             <tbody>
               {items.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50">
+                  {/* Name */}
                   <td className="border px-2 py-1">{item.name}</td>
+
+                  {/* Description */}
                   <td className="border px-2 py-1 truncate max-w-xs">
                     {item.description}
                   </td>
+
+                  {/* Groups */}
                   <td className="border px-2 py-1">
                     {item.groups?.join(', ')}
                   </td>
+
+                  {/* Thumbnail & Thumbnail Upload */}
                   <td className="border px-2 py-1">
-                    {item.thumbnailUrl && (
+                    {item.thumbnailUrl ? (
                       <img
                         src={item.thumbnailUrl}
                         alt={item.name}
                         className="block object-cover mx-auto rounded"
-                        style={{ width: 'auto', height: '9rem' }} // explicitly 1.25rem = 20×20 px
-                        //className= "block object-cover mx-auto w-5 h-5 rounded"
-                        //"thumbnail block object-cover mx-auto w-1/2"
-                        // OG "w-10 h-10 object-cover rounded" or 40 pixels each
+                        style={{ width: 'auto', height: '9rem' }}
                         loading="lazy"
                       />
+                    ) : (
+                      <div className="text-sm text-gray-500">No thumbnail</div>
+                    )}
+                    <label className="block mt-2 text-xs text-gray-600">
+                      Change thumbnail:
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="mt-1 block w-full text-xs"
+                        onChange={(e) => handleFileUpload(e, item.id, 'thumbnail')}
+                      />
+                    </label>
+                    {uploading[item.id]?.thumbnail && (
+                      <p className="text-xs text-blue-500">Uploading thumbnail…</p>
                     )}
                   </td>
-                  <td className="border px-2 py-1 space-x-2">
-                    {/* View full image */}
+
+                  {/* Actions: View/Edit/Delete + Full Image Upload */}
+                  <td className="border px-2 py-1 space-y-1">
                     {item.imageUrl && (
                       <a
                         href={item.imageUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline text-sm"
+                        className="text-blue-500 hover:underline text-sm block"
                       >
-                        View
+                        View full image
                       </a>
                     )}
-                    {/* Edit button */}
+                    <label className="block text-xs text-gray-600">
+                      Change full image:
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="mt-1 block w-full text-xs"
+                        onChange={(e) => handleFileUpload(e, item.id, 'image')}
+                      />
+                    </label>
+                    {uploading[item.id]?.image && (
+                      <p className="text-xs text-blue-500">Uploading full image…</p>
+                    )}
                     <button
                       onClick={() => navigate(`/items/${item.id}/edit`)}
                       className="text-yellow-600 hover:underline text-sm"
                     >
                       Edit
                     </button>
-                    {/* Delete button */}
                     <button
                       onClick={() => handleDelete(item.id)}
                       className="text-red-600 hover:underline text-sm"
