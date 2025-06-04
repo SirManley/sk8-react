@@ -22,7 +22,7 @@ export default function ItemsList() {
   const [hasMore, setHasMore] = useState(true); // whether there are more docs to load
   const navigate = useNavigate();
 
-  const pageSize = 20; // fetch 20 items per page
+  const pageSize = 10; // fetch 10 items per page
 
   // 1. Fetch the first page on mount
   useEffect(() => {
@@ -157,7 +157,11 @@ export default function ItemsList() {
                       <img
                         src={item.thumbnailUrl}
                         alt={item.name}
-                        className="w-10 h-10 object-cover rounded"
+                        className="block object-cover mx-auto rounded"
+                        style={{ width: 'auto', height: '9rem' }} // explicitly 1.25rem = 20×20 px
+                        //className= "block object-cover mx-auto w-5 h-5 rounded"
+                        //"thumbnail block object-cover mx-auto w-1/2"
+                        // OG "w-10 h-10 object-cover rounded" or 40 pixels each
                         loading="lazy"
                       />
                     )}
