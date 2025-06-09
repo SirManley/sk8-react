@@ -2,16 +2,15 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import MainLayout           from './layouts/MainLayout';
-import Home                 from './pages/Home';
-import Admin                from './pages/Admin';
+import MainLayout         from './layouts/MainLayout';
+import Home               from './pages/Home';
+import Admin              from './pages/Admin';
+import ItemsList          from './pages/ItemsList';
+import EditItem           from './pages/EditItem';
 
-// ← 1. Import the new ItemsList page
-import ItemsList            from './pages/ItemsList';
-import EditItem             from './pages/EditItem';
-import SkateboardsLayout    from './pages/skateboards/SkateboardsLayout';
-import FeaturedSkateboards  from './pages/skateboards/FeaturedSkateboards';
-import SkateboardsCategory  from './pages/skateboards/SkateboardsCategory';
+import SkateboardsLayout  from './pages/skateboards/SkateboardsLayout';
+import SkateboardsHome    from './pages/skateboards/SkateboardsHome';
+import SkateboardsCategory from './pages/skateboards/SkateboardsCategory';
 
 function App() {
   return (
@@ -24,17 +23,20 @@ function App() {
           {/* Admin (upload) */}
           <Route path="admin" element={<Admin />} />
 
-          {/* ← 2. New “View All” page */}
+          {/* “View All” page */}
           <Route path="items" element={<ItemsList />} />
           <Route path="items/:id/edit" element={<EditItem />} />
 
           {/* Skateboards section (nested) */}
           <Route path="skateboards" element={<SkateboardsLayout />}>
-            <Route index element={<FeaturedSkateboards />} />
+            {/* Index: /skateboards → SkateboardsHome.jsx */}
+            <Route index element={<SkateboardsHome />} />
+
+            {/* /skateboards/:category → SkateboardsCategory.jsx */}
             <Route path=":category" element={<SkateboardsCategory />} />
           </Route>
 
-          {/* …other sections */}
+          {/* …any other sections… */}
         </Route>
       </Routes>
     </BrowserRouter>
