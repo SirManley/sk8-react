@@ -1,15 +1,31 @@
 // src/layouts/MainLayout.jsx
-import { Outlet } from 'react-router-dom';
+import { useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import HeaderNav from '../components/HeaderNav';
-import Footer    from '../components/Footer';
+import SubHeaderNav from '../components/SubHeaderNav';
+import Footer from '../components/Footer';
 
 export default function MainLayout() {
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const location = useLocation();
+
+  // Show sub-header only for certain parent routes (like /skateboards)
+  const showSubHeader =
+    location.pathname.startsWith('/skateboards') ||
+    location.pathname.startsWith('/wheels'); // you can add more groups here
+
   return (
     <div className="min-h-screen flex flex-col">
-      <HeaderNav />
+      <HeaderNav setSelectedGroup={setSelectedGroup} />
+
+      {showSubHeader ? (
+        <SubHeaderNav selectedGroup={selectedGroup} />
+      ) : (
+        <div className="sub-header"></div> // still show the empty grey bar
+      )}
 
       <div className="flex-grow">
-        <Outlet />   {/* <-- where nested routes (Home/Admin/SkateboardsLayout) render */}
+        <Outlet />
       </div>
 
       <Footer />

@@ -14,15 +14,60 @@ body {
 header {
   background-color: #333;
   color: white;
-  padding: 1em;
+  padding: 0.5em;
   text-align: center;
 }
 
 header h1 {
   margin: 0;
-  margin-bottom: 0.3em;
+  /*margin-bottom: 0.3em;*/
+  margin-bottom: 0em;
   font-size: 3em;
 }
+
+.header-subtitle {
+  font-size: 1.6rem; /* 20px, adjust as needed */
+  font-weight: 300;   /* Optional: makes it a bit lighter */
+  margin-bottom: 0.5em;
+  margin-top: 0em;
+}
+
+
+
+.sub-header {
+  background-color: #333;
+  color: white;
+  height: 20px; /* ✅ Fixed height */
+  display: flex;
+  align-items: center;       /* ✅ Vertically center any content */
+  justify-content: center;   /* ✅ Horizontally center content (optional) */
+  padding: 0 1em;            /* Optional horizontal padding */
+    /* 👇 add this line */
+  padding-bottom: 8px; /* or try 6px for a touch more */
+   font-size: 1rem; /* ← Try 1rem for base, 1.125rem for larger */
+}
+
+.sub-header ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 1rem; /* or use space-x-4 in Tailwind if preferred */
+}
+
+.sub-header li {
+  margin: 0;
+}
+
+.sub-header a {
+  color: white;
+  text-decoration: none;
+}
+
+.sub-header a:hover {
+  color: #ccc;
+}
+
 
 .site-footer {
   /*background-color: #333;

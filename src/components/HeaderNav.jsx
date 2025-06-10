@@ -2,22 +2,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function HeaderNav() {
+export default function HeaderNav({ setSelectedGroup }) {
   return (
-    <header>
-      {/* Later we’ll style this via your CSS or Tailwind */}
-      <h1>SK8 or Die Workshop</h1>
-      <div className="subtitle">One man’s collection of skate artifacts</div>
+    <header className="bg-gray-800 text-white text-center py-4">
+      <h1 className="text-5xl font-bold mb-0">SK8 or Die Workshop</h1>
+      <p className="header-subtitle">One man’s collection of skate artifacts</p>
+
       <nav>
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/skateboards">Skateboards</Link></li>
-          <li><Link to="/wheels">Wheels</Link></li>
-          <li><Link to="/trucks">Trucks</Link></li>
-          <li><Link to="/accessories">Accessories</Link></li>
-          <li><Link to="/softgoods">Soft Goods</Link></li>
-          <li><Link to="/stickers">Stickers</Link></li>
-          <li><Link to="/admin">Admin</Link></li>
+        <ul className="flex justify-center space-x-4">
+          <li>  <Link to="/" onClick={() => setSelectedGroup(null)}>Home</Link> </li>
+          <li>  <Link to="/skateboards" onClick={() => setSelectedGroup("Skateboards")}>Skateboards</Link>  </li>
+          <li>  <Link to="/wheels" onClick={() => setSelectedGroup("Wheels")}>Wheels</Link>  </li>
+          <li>  <Link to="/trucks" onClick={() => setSelectedGroup("Trucks")}>Trucks</Link>  </li>
+          <li>  <Link to="/accessories" onClick={() => setSelectedGroup("Accessories")}>Accessories</Link>  </li>
+          <li>  <Link to="/apparel" onClick={() => setSelectedGroup("Apparel")}>Apparel</Link>  </li>
+          <li>  <Link to="/memorabilia" onClick={() => setSelectedGroup("Memorabilia")}>Memorabilia</Link>  </li>
         </ul>
       </nav>
     </header>

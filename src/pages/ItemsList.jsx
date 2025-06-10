@@ -10,15 +10,10 @@ import {
   startAfter,
   doc as firestoreDoc,
   deleteDoc,
-  updateDoc
+  
 } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytesResumable,
-  getDownloadURL
-} from 'firebase/storage';
+
 
 export default function ItemsList() {
   // pagination & data state
