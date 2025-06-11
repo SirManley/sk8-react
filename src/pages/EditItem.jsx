@@ -33,7 +33,8 @@ const GROUPS = {
     'Powell',
     'Bones',
     'Spitfire',
-    'OJII',
+    'OJ',
+    "Other",
     'All-Wheels'
   ],
   'Soft-Goods': [

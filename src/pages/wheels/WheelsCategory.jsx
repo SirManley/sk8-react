@@ -1,13 +1,12 @@
-// src/pages/skateboards/SkateboardsCategory.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { db } from '../../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { subGroupMap } from '../../data/subGroupMap';
 
-
-export default function SkateboardsCategory() {
+export default function WheelsCategory() {
   const { category } = useParams();
+  const group = 'wheels'; // set manually since this is for wheels
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,11 +14,8 @@ export default function SkateboardsCategory() {
     async function fetchByCategory() {
       setLoading(true);
 
-      // map slug -> Firestore tag, with a special case 
-      const group = 'skateboards'; // hardcoded in this file
-      const tagToQuery = subGroupMap[`${group}/${category}`] || category;
-
-
+      const mapKey = `${group}/${category}`;
+      const tagToQuery = subGroupMap[mapKey] || category;
 
       try {
         const q = query(
@@ -27,11 +23,10 @@ export default function SkateboardsCategory() {
           where('subGroups', 'array-contains', tagToQuery)
         );
         const snap = await getDocs(q);
-        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         const filtered = docs.filter(
-          item =>
-            Array.isArray(item.groups) &&
-            item.groups.includes('Skateboards')
+          (item) =>
+            Array.isArray(item.groups) && item.groups.includes('Wheels')
         );
         setItems(filtered);
       } catch (err) {
@@ -45,16 +40,17 @@ export default function SkateboardsCategory() {
     if (category) {
       fetchByCategory();
     }
-  }, [category]);
+  }, [category, group]);
+
 
   const displayLabel =
     category === 'complete-collection'
-      ? 'All Skateboards'
-      : category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      ? 'All Wheels'
+      : category.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 
   if (loading) return <p className="text-center">Loading {displayLabel}…</p>;
   if (!items.length)
-    return <p className="text-center">No skateboards found for “{displayLabel}.”</p>;
+    return <p className="text-center">No wheels found for “{displayLabel}.”</p>;
 
   return (
     <div className="w-4/5 mx-auto px-4" style={{ overflowX: 'hidden' }}>
@@ -64,11 +60,11 @@ export default function SkateboardsCategory() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, auto))',
-          gap: '3rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '6rem',
         }}
       >
-        {items.map(item => (
+        {items.map((item) => (
           <div
             key={item.id}
             className="bg-white rounded overflow-hidden shadow hover:shadow-lg transition p-2 flex flex-col items-center"

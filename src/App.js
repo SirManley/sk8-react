@@ -12,6 +12,11 @@ import SkateboardsLayout from './pages/skateboards/SkateboardsLayout';
 import SkateboardsHome from './pages/skateboards/SkateboardsHome';
 import SkateboardsCategory from './pages/skateboards/SkateboardsCategory';
 
+// At the top (import the components you’ll create shortly)
+import WheelsLayout from './pages/wheels/WheelsLayout';
+import WheelsCategory from './pages/wheels/WheelsCategory';
+import WheelsHome from './pages/wheels/WheelsHome';
+
 function App() {
   return (
     <BrowserRouter>
@@ -32,6 +37,13 @@ function App() {
             <Route index element={<SkateboardsHome />} />
             <Route path=":category" element={<SkateboardsCategory />} />
           </Route>
+
+          {/* Wheels (nested routes) */}
+          <Route path="wheels" element={<WheelsLayout />}>
+          <Route path="/wheels" element={<WheelsHome />} />
+           <Route path=":category" element={<WheelsCategory />} />
+          </Route>
+
           
           {/* Additional sections will go here */}
         </Route>
