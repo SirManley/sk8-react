@@ -1,13 +1,12 @@
-// src/pages/skateboards/SkateboardsCategory.jsx
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import { db } from '../../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { subGroupMap } from '../../data/subGroupMap';
 
-
 export default function SkateboardsCategory() {
   const { category } = useParams();
+  const { setSelectedItem } = useOutletContext();    // grab modal opener
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,11 +14,8 @@ export default function SkateboardsCategory() {
     async function fetchByCategory() {
       setLoading(true);
 
-      // map slug -> Firestore tag, with a special case 
-      const group = 'skateboards'; // hardcoded in this file
+      const group = 'skateboards';
       const tagToQuery = subGroupMap[`${group}/${category}`] || category;
-
-
 
       try {
         const q = query(
@@ -64,14 +60,28 @@ export default function SkateboardsCategory() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, auto))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
           gap: '3rem',
         }}
       >
         {items.map(item => (
           <div
             key={item.id}
-            className="bg-white rounded overflow-hidden shadow hover:shadow-lg transition p-2 flex flex-col items-center"
+            role="button"
+            tabIndex={0}
+            onClick={() => setSelectedItem(item)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelectedItem(item);
+              }
+            }}
+            className="
+              cursor-pointer
+              bg-white rounded overflow-hidden shadow
+              hover:shadow-lg transition p-2 flex flex-col items-center
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+            "
           >
             <img
               src={item.thumbnailUrl}

@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import { db } from '../../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { subGroupMap } from '../../data/subGroupMap';
 
 export default function WheelsCategory() {
   const { category } = useParams();
-  const group = 'wheels'; // set manually since this is for wheels
+  const { setSelectedItem } = useOutletContext();    // ← grab modal opener
+  const group = 'wheels';
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchByCategory() {
       setLoading(true);
-
       const mapKey = `${group}/${category}`;
       const tagToQuery = subGroupMap[mapKey] || category;
 
@@ -42,7 +42,6 @@ export default function WheelsCategory() {
     }
   }, [category, group]);
 
-
   const displayLabel =
     category === 'complete-collection'
       ? 'All Wheels'
@@ -67,7 +66,21 @@ export default function WheelsCategory() {
         {items.map((item) => (
           <div
             key={item.id}
-            className="bg-white rounded overflow-hidden shadow hover:shadow-lg transition p-2 flex flex-col items-center"
+            role="button"
+            tabIndex={0}
+            onClick={() => setSelectedItem(item)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelectedItem(item);
+              }
+            }}
+            className="
+              cursor-pointer
+              bg-white rounded overflow-hidden shadow
+              hover:shadow-lg transition p-2 flex flex-col items-center
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+            "
           >
             <img
               src={item.thumbnailUrl}
