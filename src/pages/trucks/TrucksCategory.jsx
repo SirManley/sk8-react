@@ -1,32 +1,34 @@
+// src/pages/trucks/TrucksCategory.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useOutletContext } from 'react-router-dom';
 import { db } from '../../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { subGroupMap } from '../../data/subGroupMap';
 
-export default function WheelsCategory() {
+export default function TrucksCategory() {
   const { category } = useParams();
-  const { setSelectedItem } = useOutletContext();    // ← grab modal opener
-  const group = 'wheels';
+  const { setSelectedItem } = useOutletContext();
+  const group = 'trucks';
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchByCategory() {
       setLoading(true);
-      const mapKey = `${group}/${category}`;
+      const mapKey     = `${group}/${category}`;
       const tagToQuery = subGroupMap[mapKey] || category;
 
       try {
-        const q = query(
+        const q    = query(
           collection(db, 'images'),
           where('subGroups', 'array-contains', tagToQuery)
         );
         const snap = await getDocs(q);
-        const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         const filtered = docs.filter(
-          (item) =>
-            Array.isArray(item.groups) && item.groups.includes('Wheels')
+          item =>
+            Array.isArray(item.groups) &&
+            item.groups.includes('Trucks')
         );
         setItems(filtered);
       } catch (err) {
@@ -44,12 +46,15 @@ export default function WheelsCategory() {
 
   const displayLabel =
     category === 'complete-collection'
-      ? 'All Wheels'
-      : category.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+      ? 'All Trucks'
+      : category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-  if (loading) return <p className="text-center">Loading {displayLabel}…</p>;
+  if (loading)
+    return <p className="text-center">Loading {displayLabel}…</p>;
   if (!items.length)
-    return <p className="text-center">No wheels found for “{displayLabel}.”</p>;
+    return <p className="text-center">
+      No trucks found for “{displayLabel}.”
+    </p>;
 
   return (
     <div className="w-4/5 mx-auto px-4" >
@@ -64,13 +69,13 @@ export default function WheelsCategory() {
           justifyItems: 'center',  // center each cell
         }}
       >
-        {items.map((item) => (
+        {items.map(item => (
           <div
             key={item.id}
             role="button"
             tabIndex={0}
             onClick={() => setSelectedItem(item)}
-            onKeyDown={(e) => {
+            onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 setSelectedItem(item);
@@ -92,7 +97,7 @@ export default function WheelsCategory() {
               objectFit: 'contain'  // show entire image
             }}
           />
-
+          
             {item.name && (
               <p className="mt-2 text-center text-sm font-medium text-gray-800">
                 {item.name}

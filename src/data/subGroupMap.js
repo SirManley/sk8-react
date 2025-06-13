@@ -15,6 +15,16 @@ export const subGroupMap = {
   'wheels/spitfire': 'Spitfire',
   'wheels/oj': 'OJ',
   'wheels/other': 'Other',
-  'wheels/complete-collection': 'All-Wheels'
+  'wheels/complete-collection': 'All-Wheels',
+
+  // Trucks
+  'trucks/independent': 'Independent',
+  'trucks/tracker': 'Tracker',
+  'trucks/grind-king': 'Grind King',  
+  'trucks/thunder': 'Thunder',      
+  'trucks/other': 'Other',
+  'trucks/complete-collection': 'All-Trucks',
+
+
 };
 

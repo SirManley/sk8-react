@@ -12,7 +12,8 @@ export default function MainLayout() {
   // Show sub-header only for certain parent routes (like /skateboards)
   const showSubHeader =
     location.pathname.startsWith('/skateboards') ||
-    location.pathname.startsWith('/wheels'); // you can add more groups here
+    location.pathname.startsWith('/wheels')    ||
+    location.pathname.startsWith('/trucks');
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -22,9 +22,10 @@ const GROUPS = {
     'Old-School',
     'New-School',
     'Independent',
-    'Grind-King',
+    'Grind King',
     'Tracker',
     'Thunder',
+    'Other',
     'All-Trucks'
   ],
   Wheels: [
