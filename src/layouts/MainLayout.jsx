@@ -13,6 +13,7 @@ export default function MainLayout() {
   const showSubHeader =
     location.pathname.startsWith('/skateboards') ||
     location.pathname.startsWith('/wheels')    ||
+    location.pathname.startsWith('/accessories')    ||
     location.pathname.startsWith('/trucks');
 
   return (

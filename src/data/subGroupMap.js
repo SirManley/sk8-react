@@ -25,6 +25,21 @@ export const subGroupMap = {
   'trucks/other': 'Other',
   'trucks/complete-collection': 'All-Trucks',
 
+  //Accessories: ["Bearings", "Grip Tape", "Hardware"],
+  'accessories/bearings': 'Bearings',
+  'accessories/grip tape': 'Grip Tape',
+  'accessories/hardware': 'Hardware',  
+  'accessories/rails': 'Rails',
+  'accessories/other plastics': 'Other Plastics',  
+  'accessories/additional accessories': 'Additional Accessories', 
+  
+  //Apparel: ["Shirts", "Shoes", "Hats"],
+  
+  
+  
+  //Memorabilia: ["Stickers", "Posters", "Magazines"],
+
+
 
 };
 

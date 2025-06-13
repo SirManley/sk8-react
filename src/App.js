@@ -20,6 +20,11 @@ import TrucksLayout from './pages/trucks/TrucksLayout'
 import TrucksHome   from './pages/trucks/TrucksHome'
 import TrucksCategory from './pages/trucks/TrucksCategory'
 
+import AccessoriesLayout     from './pages/accessories/AccessoriesLayout';
+import AccessoriesHome       from './pages/accessories/AccessoriesHome';
+import AccessoriesCategory   from './pages/accessories/AccessoriesCategory';
+
+
 function App() {
   return (
 <BrowserRouter>
@@ -53,9 +58,14 @@ function App() {
         <Route index element={<TrucksHome />} />
         <Route path=":category" element={<TrucksCategory />} />
       </Route>
-    {/* ← Close the MainLayout parent here */}
-    </Route>
 
+      {/* Accessories (nested) */}
+      <Route path="accessories" element={<AccessoriesLayout />}>
+        <Route index element={<AccessoriesHome />} />
+        <Route path=":category" element={<AccessoriesCategory />} />
+      </Route>
+
+    </Route>
   </Routes>
 </BrowserRouter>
 
