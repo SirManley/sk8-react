@@ -5,8 +5,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Admin from './pages/Admin';
-import ItemsList    from './pages/ItemsList';
-import EditItem     from './pages/EditItem';
+import ItemsList from './pages/ItemsList';
+import EditItem from './pages/EditItem';
 
 import SkateboardsLayout from './pages/skateboards/SkateboardsLayout';
 import SkateboardsHome from './pages/skateboards/SkateboardsHome';
@@ -16,59 +16,69 @@ import WheelsLayout from './pages/wheels/WheelsLayout';
 import WheelsCategory from './pages/wheels/WheelsCategory';
 import WheelsHome from './pages/wheels/WheelsHome';
 
-import TrucksLayout from './pages/trucks/TrucksLayout'
-import TrucksHome   from './pages/trucks/TrucksHome'
-import TrucksCategory from './pages/trucks/TrucksCategory'
+import TrucksLayout from './pages/trucks/TrucksLayout';
+import TrucksHome from './pages/trucks/TrucksHome';
+import TrucksCategory from './pages/trucks/TrucksCategory';
 
-import AccessoriesLayout     from './pages/accessories/AccessoriesLayout';
-import AccessoriesHome       from './pages/accessories/AccessoriesHome';
-import AccessoriesCategory   from './pages/accessories/AccessoriesCategory';
+import AccessoriesLayout from './pages/accessories/AccessoriesLayout';
+import AccessoriesHome from './pages/accessories/AccessoriesHome';
+import AccessoriesCategory from './pages/accessories/AccessoriesCategory';
 
+import RequireAuth from './components/RequireAuth';
+import Login from './pages/Login';
 
 function App() {
   return (
-<BrowserRouter>
-  <Routes>
-    {/* Parent for MainLayout and all its children */}
-    <Route element={<MainLayout />}>
-      {/* Home */}
-      <Route path="/" element={<Home />} />
-      {/* Admin */}
-      <Route path="admin" element={<Admin />} />
-      {/* …other top-level routes… */}
+    <BrowserRouter>
+      <Routes>
 
-      {/* Items List & Edit */}
-      <Route path="items" element={<ItemsList />} />
-      <Route path="items/:id/edit" element={<EditItem />} />
+        {/* 🔐 Login page - outside of MainLayout */}
+        <Route path="/login" element={<Login />} />
 
-      {/* Skateboards (nested) */}
-      <Route path="skateboards" element={<SkateboardsLayout />}>
-        <Route index element={<SkateboardsHome />} />
-        <Route path=":category" element={<SkateboardsCategory />} />
-      </Route>
+        {/* 🌐 All other routes use MainLayout */}
+        <Route element={<MainLayout />}>
 
-      {/* Wheels (nested) */}
-      <Route path="wheels" element={<WheelsLayout />}>
-        <Route index element={<WheelsHome />} />
-        <Route path=":category" element={<WheelsCategory />} />
-      </Route>
+          {/* Home */}
+          <Route path="/" element={<Home />} />
 
-      {/* Trucks (nested) */}
-      <Route path="trucks" element={<TrucksLayout />}>
-        <Route index element={<TrucksHome />} />
-        <Route path=":category" element={<TrucksCategory />} />
-      </Route>
+          {/* Admin - protected by RequireAuth */}
+          <Route path="admin" element={
+            <RequireAuth>
+              <Admin />
+            </RequireAuth>
+          } />
 
-      {/* Accessories (nested) */}
-      <Route path="accessories" element={<AccessoriesLayout />}>
-        <Route index element={<AccessoriesHome />} />
-        <Route path=":category" element={<AccessoriesCategory />} />
-      </Route>
+          {/* Items List & Edit */}
+          <Route path="items" element={<ItemsList />} />
+          <Route path="items/:id/edit" element={<EditItem />} />
 
-    </Route>
-  </Routes>
-</BrowserRouter>
+          {/* Skateboards (nested) */}
+          <Route path="skateboards" element={<SkateboardsLayout />}>
+            <Route index element={<SkateboardsHome />} />
+            <Route path=":category" element={<SkateboardsCategory />} />
+          </Route>
 
+          {/* Wheels (nested) */}
+          <Route path="wheels" element={<WheelsLayout />}>
+            <Route index element={<WheelsHome />} />
+            <Route path=":category" element={<WheelsCategory />} />
+          </Route>
+
+          {/* Trucks (nested) */}
+          <Route path="trucks" element={<TrucksLayout />}>
+            <Route index element={<TrucksHome />} />
+            <Route path=":category" element={<TrucksCategory />} />
+          </Route>
+
+          {/* Accessories (nested) */}
+          <Route path="accessories" element={<AccessoriesLayout />}>
+            <Route index element={<AccessoriesHome />} />
+            <Route path=":category" element={<AccessoriesCategory />} />
+          </Route>
+
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

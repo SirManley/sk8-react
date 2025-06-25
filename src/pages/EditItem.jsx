@@ -44,12 +44,14 @@ const GROUPS = {
     'Patches'
   ],
   Accessories: [
+    'Bearings',
     'Grip-Tape',
     'Hardware',
     'Rails',
     'Plastic-Guards',
     'Risers',
-    'Tools'
+    'Tools',
+    'All-Accessories'
   ],
   Stickers: [
     'McGill',

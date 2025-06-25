@@ -11,7 +11,7 @@ export default function TrucksHome() {
       const snap = await getDocs(collection(db, 'images'));
       const all  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       // make sure you upload a "Trucks-collage" item in Firestore
-      setFeatured(all.find(item => item.name === 'Original Tony Hawk Claw'));
+      setFeatured(all.find(item => item.name === 'GK-wall1'));
     }
     fetchFeatured();
   }, []);

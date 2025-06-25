@@ -30,8 +30,10 @@ export const subGroupMap = {
   'accessories/grip tape': 'Grip Tape',
   'accessories/hardware': 'Hardware',  
   'accessories/rails': 'Rails',
-  'accessories/other plastics': 'Other Plastics',  
-  'accessories/additional accessories': 'Additional Accessories', 
+  'accessories/plastic-guards': 'Plastic-Guards',  
+  'accessories/risers': 'Risers', 
+  'accessories/tools': 'Tools',   
+  'accessories/all-accessories': 'All-Accessories',
   
   //Apparel: ["Shirts", "Shoes", "Hats"],
   
