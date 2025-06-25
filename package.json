@@ -2,7 +2,7 @@
   "name": "sk8-react",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://ryanmanley.github.io/sk8-react",
+  "homepage": "https://sirmanley.github.io/sk8-react",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
