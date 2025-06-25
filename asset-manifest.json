@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/sk8-react/static/css/main.b7661023.css",
+    "main.js": "/sk8-react/static/js/main.daf7e5c8.js",
+    "index.html": "/sk8-react/index.html",
+    "main.b7661023.css.map": "/sk8-react/static/css/main.b7661023.css.map",
+    "main.daf7e5c8.js.map": "/sk8-react/static/js/main.daf7e5c8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b7661023.css",
+    "static/js/main.daf7e5c8.js"
+  ]
+}
