@@ -2,21 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
-export default function MemorabiliaHome() {
+export default function ProtectiveHome() {
   const [featured, setFeatured] = useState(null);
 
   useEffect(() => {
     async function fetchFeatured() {
       const snap = await getDocs(collection(db, 'images'));
       const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      // Replace 'Memorabilia-collage' with your actual featured memorabilia item name
-      setFeatured(all.find(item => item.name === 'Memm'));
+      // Replace 'Protective-collage' with your actual featured protective gear image name
+      setFeatured(all.find(item => item.name === 'Flyaway'));
     }
     fetchFeatured();
   }, []);
 
   if (!featured)
-    return <p className="text-center">Loading featured memorabilia collage…</p>;
+    return <p className="text-center">Loading featured protective gear collage…</p>;
 
   return (
     <img

@@ -35,6 +35,10 @@ import MemorabiliaLayout from './pages/memorabilia/MemorabiliaLayout';
 import MemorabiliaHome from './pages/memorabilia/MemorabiliaHome';
 import MemorabiliaCategory from './pages/memorabilia/MemorabiliaCategory';
 
+import ProtectiveLayout from './pages/protective/ProtectiveLayout';
+import ProtectiveHome from './pages/protective/ProtectiveHome';
+import ProtectiveCategory from './pages/protective/ProtectiveCategory';
+
 import RequireAuth from './components/RequireAuth';
 import Login from './pages/Login';
 
@@ -95,6 +99,11 @@ function App() {
           <Route path="/memorabilia" element={<MemorabiliaLayout />}>
             <Route index element={<MemorabiliaHome />} />
             <Route path=":subcategory" element={<MemorabiliaCategory />} />
+          </Route>
+
+          <Route path="/protective" element={<ProtectiveLayout />}>
+            <Route index element={<ProtectiveHome />} />
+            <Route path=":category" element={<ProtectiveCategory />} />
           </Route>
 
         </Route>

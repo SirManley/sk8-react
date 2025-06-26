@@ -48,5 +48,14 @@ export const subGroupMap = {
   'memorabilia/magazines' : 'Magazines',
   'memorabilia/all-memorabilia' : 'All-Memorabilia',
 
+  //protective: ["Helmets", "Elbow", "Knee"],
+  'protective/helmets': 'Helmets',
+  'protective/elbow' : 'Elbow',
+  'protective/knee' : 'Knee',
+  'protective/ankle' : 'Ankle',
+  'protective/wrist' : 'Wrist',
+  'protective/hand' : 'Hand',
+  'protective/all-protective' : 'All-Protective',
+
 };
 

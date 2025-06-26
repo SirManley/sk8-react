@@ -6,4 +6,5 @@ export const groupsData = {
   Accessories: ["Bearings", "Grip Tape", "Hardware", "Rails", "Plastic-Guards","Risers","Tools", "All-Accessories"],
   Apparel: ["Shirts", "Shoes", "Hats", "Pants", "All-Apparel"],
   Memorabilia: ["Stickers", "Posters", "Magazines", "All-Memorabilia"],
+  Protective: ["Helmets", "Elbow", "Knee", "Ankle", " Wrist", "Hand", "All-Protective"],
 };

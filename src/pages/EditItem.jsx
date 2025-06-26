@@ -38,11 +38,6 @@ const GROUPS = {
     "Other",
     'All-Wheels'
   ],
-  'Soft-Goods': [
-    'Apparel',
-    'Safety-Gear',
-    'Patches'
-  ],
   Accessories: [
     'Bearings',
     'Grip-Tape',
@@ -53,10 +48,31 @@ const GROUPS = {
     'Tools',
     'All-Accessories'
   ],
-  Stickers: [
-    'McGill',
-    'All-Stickers'
-  ]
+  Apparel: [
+    'Shirts',
+    'Shoes',
+    'Hats',
+    'Pants',
+    'All-Apparel'
+  ],
+  
+Memorabilia: [
+    'Stickers',
+    'Posters',
+    'Magazines',
+    'All-Memorabilia'
+  ],
+
+    Protective: [
+    'Helmets',
+    'Elbow',
+    'Knee',
+    'Ankle',
+    'Wrist',
+    'Hand',
+    'All-Protective'
+  ],
+
 };
 
 export default function EditItem() {
