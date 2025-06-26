@@ -27,6 +27,14 @@ import AccessoriesLayout from './pages/accessories/AccessoriesLayout';
 import AccessoriesHome from './pages/accessories/AccessoriesHome';
 import AccessoriesCategory from './pages/accessories/AccessoriesCategory';
 
+import ApparelLayout from './pages/apparel/ApparelLayout';
+import ApparelHome from './pages/apparel/ApparelHome';
+import ApparelCategory from './pages/apparel/ApparelCategory';
+
+import MemorabiliaLayout from './pages/memorabilia/MemorabiliaLayout';
+import MemorabiliaHome from './pages/memorabilia/MemorabiliaHome';
+import MemorabiliaCategory from './pages/memorabilia/MemorabiliaCategory';
+
 import RequireAuth from './components/RequireAuth';
 import Login from './pages/Login';
 
@@ -77,6 +85,16 @@ function App() {
           <Route path="accessories" element={<AccessoriesLayout />}>
             <Route index element={<AccessoriesHome />} />
             <Route path=":category" element={<AccessoriesCategory />} />
+          </Route>
+
+          <Route path="/apparel" element={<ApparelLayout />}>
+            <Route index element={<ApparelHome />} />
+            <Route path=":subcategory" element={<ApparelCategory />} />
+          </Route>
+
+          <Route path="/memorabilia" element={<MemorabiliaLayout />}>
+            <Route index element={<MemorabiliaHome />} />
+            <Route path=":subcategory" element={<MemorabiliaCategory />} />
           </Route>
 
         </Route>

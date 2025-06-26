@@ -14,6 +14,8 @@ export default function MainLayout() {
     location.pathname.startsWith('/skateboards') ||
     location.pathname.startsWith('/wheels')    ||
     location.pathname.startsWith('/accessories')    ||
+    location.pathname.startsWith('/apparel')    ||
+    location.pathname.startsWith('/memorabilia')    ||
     location.pathname.startsWith('/trucks');
 
   return (

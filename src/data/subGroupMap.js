@@ -36,12 +36,17 @@ export const subGroupMap = {
   'accessories/all-accessories': 'All-Accessories',
   
   //Apparel: ["Shirts", "Shoes", "Hats"],
-  
-  
-  
+  'apparel/shirts' : 'Shirts',
+  'apparel/shoes' : 'Shoes',
+  'apparel/hats' : 'Hats',
+  'apparel/pants' : 'Pants',
+  'apparel/all-apparel' : 'All-Apparel',
+    
   //Memorabilia: ["Stickers", "Posters", "Magazines"],
-
-
+  'memorabilia/stickers': 'Stickers',
+  'memorabilia/posters' : 'Posters',
+  'memorabilia/magazines' : 'Magazines',
+  'memorabilia/all-memorabilia' : 'All-Memorabilia',
 
 };
 
