@@ -58,8 +58,11 @@ const GROUPS = {
   
 Memorabilia: [
     'Stickers',
+    'patches',
+    'pins',
     'Posters',
     'Magazines',
+    'Other',
     'All-Memorabilia'
   ],
 

@@ -93,12 +93,12 @@ function App() {
 
           <Route path="/apparel" element={<ApparelLayout />}>
             <Route index element={<ApparelHome />} />
-            <Route path=":subcategory" element={<ApparelCategory />} />
+            <Route path=":category" element={<ApparelCategory />} />
           </Route>
 
           <Route path="/memorabilia" element={<MemorabiliaLayout />}>
             <Route index element={<MemorabiliaHome />} />
-            <Route path=":subcategory" element={<MemorabiliaCategory />} />
+            <Route path=":category" element={<MemorabiliaCategory />} />
           </Route>
 
           <Route path="/protective" element={<ProtectiveLayout />}>

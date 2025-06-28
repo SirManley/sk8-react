@@ -27,7 +27,7 @@ export const subGroupMap = {
 
   //Accessories: ["Bearings", "Grip Tape", "Hardware"],
   'accessories/bearings': 'Bearings',
-  'accessories/grip tape': 'Grip Tape',
+  'accessories/grip-tape': 'Grip-Tape',
   'accessories/hardware': 'Hardware',  
   'accessories/rails': 'Rails',
   'accessories/plastic-guards': 'Plastic-Guards',  
@@ -44,8 +44,11 @@ export const subGroupMap = {
     
   //Memorabilia: ["Stickers", "Posters", "Magazines"],
   'memorabilia/stickers': 'Stickers',
+  'memorabilia/patches' : 'Patches',  
+  'memorabilia/pins' : 'Pins',
   'memorabilia/posters' : 'Posters',
   'memorabilia/magazines' : 'Magazines',
+  'memorabilia/other' : 'Other',
   'memorabilia/all-memorabilia' : 'All-Memorabilia',
 
   //protective: ["Helmets", "Elbow", "Knee"],
