@@ -21,7 +21,8 @@ export const subGroupMap = {
   'trucks/independent': 'Independent',
   'trucks/tracker': 'Tracker',
   'trucks/grind-king': 'Grind King',  
-  'trucks/thunder': 'Thunder',      
+  'trucks/thunder': 'Thunder',  
+  'trucks/venture': 'Venture',       
   'trucks/other': 'Other',
   'trucks/complete-collection': 'All-Trucks',
 
@@ -33,6 +34,7 @@ export const subGroupMap = {
   'accessories/plastic-guards': 'Plastic-Guards',  
   'accessories/risers': 'Risers', 
   'accessories/tools': 'Tools',   
+  'accessories/other': 'Other',   
   'accessories/all-accessories': 'All-Accessories',
   
   //Apparel: ["Shirts", "Shoes", "Hats"],
@@ -40,6 +42,7 @@ export const subGroupMap = {
   'apparel/shoes' : 'Shoes',
   'apparel/hats' : 'Hats',
   'apparel/pants' : 'Pants',
+  'apparel/other' : 'Other', 
   'apparel/all-apparel' : 'All-Apparel',
     
   //Memorabilia: ["Stickers", "Posters", "Magazines"],
@@ -58,6 +61,7 @@ export const subGroupMap = {
   'protective/ankle' : 'Ankle',
   'protective/wrist' : 'Wrist',
   'protective/hand' : 'Hand',
+  'protective/other' : 'Other',  
   'protective/all-protective' : 'All-Protective',
 
 };

@@ -23,6 +23,7 @@ const GROUPS = {
     'Grind King',
     'Tracker',
     'Thunder',
+    'Venture',
     'Other',
     'All-Trucks'
   ],
@@ -45,6 +46,7 @@ const GROUPS = {
     'Plastic-Guards',
     'Risers',
     'Tools',
+    'Other',
     'All-Accessories'
   ],
   Apparel: [
@@ -52,6 +54,7 @@ const GROUPS = {
     'Shoes',
     'Hats',
     'Pants',
+    'Other',
     'All-Apparel'
   ],
   
@@ -72,6 +75,7 @@ Memorabilia: [
     'Ankle',
     'Wrist',
     'Hand',
+    'Other',
     'All-Protective'
   ],
 
