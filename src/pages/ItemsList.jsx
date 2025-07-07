@@ -14,17 +14,11 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function ItemsList() {
-  // pagination & data state
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [lastVisible, setLastVisible] = useState(null);
   const [hasMore, setHasMore] = useState(true);
-
-  // upload-in-progress state
-  const [uploading] = useState({});
-
-  // search state
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -32,7 +26,6 @@ export default function ItemsList() {
   const navigate = useNavigate();
   const pageSize = 10;
 
-  // 1. Fetch first page
   useEffect(() => {
     const fetchFirstPage = async () => {
       setLoading(true);
@@ -57,7 +50,6 @@ export default function ItemsList() {
     fetchFirstPage();
   }, []);
 
-  // 2. Fetch next page
   const fetchNextPage = async () => {
     if (!lastVisible) return;
     setLoadingMore(true);
@@ -81,7 +73,6 @@ export default function ItemsList() {
     }
   };
 
-  // 3. Delete handler
   const handleDelete = async id => {
     if (!window.confirm('Are you sure you want to delete this item?')) return;
     try {
@@ -92,12 +83,6 @@ export default function ItemsList() {
     }
   };
 
-  // 4. File-upload handler (unchanged)
-  const handleFileUpload = async (e, itemId, type) => {
-    // … your existing upload logic here …
-  };
-
-  // 5. Full-collection search effect
   useEffect(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) {
@@ -112,7 +97,6 @@ export default function ItemsList() {
         const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         const filtered = all.filter(item => {
-          const term = searchTerm.toLowerCase();
           const nameMatch = item.name?.toLowerCase().includes(term);
           const descMatch = item.description?.toLowerCase().includes(term);
           const groupMatch =
@@ -134,12 +118,10 @@ export default function ItemsList() {
     })();
   }, [searchTerm]);
 
-  // Show loading only if initial page is loading & not searching
   if (loading && !searchTerm) {
     return <div className="p-4 text-center">Loading…</div>;
   }
 
-  // Determine which items to display
   const displayItems = searchTerm
     ? (searchLoading ? [] : searchResults)
     : items;
@@ -156,7 +138,6 @@ export default function ItemsList() {
         </Link>
       </div>
 
-      {/* ——— Search Box ——— */}
       <div className="mb-4 text-center">
         <input
           type="text"
@@ -167,7 +148,6 @@ export default function ItemsList() {
         />
       </div>
 
-      {/* ——— No items / No matches ——— */}
       {displayItems.length === 0 ? (
         <p className="text-center">
           {searchTerm
@@ -176,7 +156,6 @@ export default function ItemsList() {
         </p>
       ) : (
         <>
-          {/* ——— Items Table ——— */}
           <table className="w-full border-collapse mb-4">
             <thead>
               <tr className="bg-gray-100">
@@ -191,12 +170,8 @@ export default function ItemsList() {
               {displayItems.map(item => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="border px-2 py-1">{item.name}</td>
-                  <td className="border px-2 py-1 truncate max-w-xs">
-                    {item.description}
-                  </td>
-                  <td className="border px-2 py-1">
-                    {item.groups?.join(', ')}
-                  </td>
+                  <td className="border px-2 py-1 truncate max-w-xs">{item.description}</td>
+                  <td className="border px-2 py-1">{item.groups?.join(', ')}</td>
                   <td className="border px-2 py-1">
                     {item.thumbnailUrl ? (
                       <img
@@ -207,25 +182,7 @@ export default function ItemsList() {
                         loading="lazy"
                       />
                     ) : (
-                      <div className="text-sm text-gray-500">
-                        No thumbnail
-                      </div>
-                    )}
-                    <label className="block mt-2 text-xs text-gray-600">
-                      Change thumbnail:
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="mt-1 block w-full text-xs"
-                        onChange={e =>
-                          handleFileUpload(e, item.id, 'thumbnail')
-                        }
-                      />
-                    </label>
-                    {uploading[item.id]?.thumbnail && (
-                      <p className="text-xs text-blue-500">
-                        Uploading thumbnail…
-                      </p>
+                      <div className="text-sm text-gray-500">No thumbnail</div>
                     )}
                   </td>
                   <td className="border px-2 py-1 space-y-1">
@@ -238,22 +195,6 @@ export default function ItemsList() {
                       >
                         View full image
                       </a>
-                    )}
-                    <label className="block text-xs text-gray-600">
-                      Change full image:
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="mt-1 block w-full text-xs"
-                        onChange={e =>
-                          handleFileUpload(e, item.id, 'image')
-                        }
-                      />
-                    </label>
-                    {uploading[item.id]?.image && (
-                      <p className="text-xs text-blue-500">
-                        Uploading full image…
-                      </p>
                     )}
                     <button
                       onClick={() => navigate(`/items/${item.id}/edit`)}
@@ -273,7 +214,6 @@ export default function ItemsList() {
             </tbody>
           </table>
 
-          {/* ——— Load More button for pagination ——— */}
           {!searchTerm && hasMore && (
             <div className="text-center mt-4">
               <button

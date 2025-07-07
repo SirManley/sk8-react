@@ -1,9 +1,5 @@
-// src/App.js
-import React from 'react';
-//import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-
-
 
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
@@ -42,26 +38,38 @@ import ProtectiveCategory from './pages/protective/ProtectiveCategory';
 import RequireAuth from './components/RequireAuth';
 import Login from './pages/Login';
 
+import SearchResults from './pages/SearchResults';
+
 function App() {
+  const [selectedItem, setSelectedItem] = useState(null);
+
   return (
     <Router>
       <Routes>
-
         {/* 🔐 Login page - outside of MainLayout */}
         <Route path="/login" element={<Login />} />
 
         {/* 🌐 All other routes use MainLayout */}
-        <Route element={<MainLayout />}>
-
+        <Route
+          element={
+            <MainLayout
+              selectedItem={selectedItem}
+              setSelectedItem={setSelectedItem}
+            />
+          }
+        >
           {/* Home */}
           <Route path="/" element={<Home />} />
 
           {/* Admin - protected by RequireAuth */}
-          <Route path="admin" element={
-            <RequireAuth>
-              <Admin />
-            </RequireAuth>
-          } />
+          <Route
+            path="admin"
+            element={
+              <RequireAuth>
+                <Admin />
+              </RequireAuth>
+            }
+          />
 
           {/* Items List & Edit */}
           <Route path="items" element={<ItemsList />} />
@@ -91,21 +99,29 @@ function App() {
             <Route path=":category" element={<AccessoriesCategory />} />
           </Route>
 
-          <Route path="/apparel" element={<ApparelLayout />}>
+          {/* Apparel (nested) */}
+          <Route path="apparel" element={<ApparelLayout />}>
             <Route index element={<ApparelHome />} />
             <Route path=":category" element={<ApparelCategory />} />
           </Route>
 
-          <Route path="/memorabilia" element={<MemorabiliaLayout />}>
+          {/* Memorabilia (nested) */}
+          <Route path="memorabilia" element={<MemorabiliaLayout />}>
             <Route index element={<MemorabiliaHome />} />
             <Route path=":category" element={<MemorabiliaCategory />} />
           </Route>
 
-          <Route path="/protective" element={<ProtectiveLayout />}>
+          {/* Protective (nested) */}
+          <Route path="protective" element={<ProtectiveLayout />}>
             <Route index element={<ProtectiveHome />} />
             <Route path=":category" element={<ProtectiveCategory />} />
           </Route>
 
+          {/* 🔍 Search results page */}
+          <Route
+            path="/search"
+            element={<SearchResults setSelectedItem={setSelectedItem} />}
+          />
         </Route>
       </Routes>
     </Router>
@@ -113,3 +129,4 @@ function App() {
 }
 
 export default App;
+

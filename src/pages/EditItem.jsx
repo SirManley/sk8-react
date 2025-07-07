@@ -1,85 +1,22 @@
 // src/pages/EditItem.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import {
   doc,
   getDoc,
   updateDoc
 } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const GROUPS = {
-  Skateboards: [
-    'Old-School',
-    'New-School',
-    'Shaped',
-    'Freestyle',
-    'Mike-McGill',
-    'Tony-Hawk',
-    'All-Skateboards'
-  ],
-  Trucks: [
-    'Old-School',
-    'New-School',
-    'Independent',
-    'Grind King',
-    'Tracker',
-    'Thunder',
-    'Venture',
-    'Other',
-    'All-Trucks'
-  ],
-  Wheels: [
-    'Old-School',
-    'New-School',
-    'Powell',
-    'Bones',
-    'Spitfire',
-    'OJ',
-    "Other",
-    'All-Wheels'
-  ],
-  Accessories: [
-    'Bearings',
-    'Grip-Tape',
-    'Hardware',
-    'Rails',
-    'Plastic-Guards',
-    'Risers',
-    'Tools',
-    'Other',
-    'All-Accessories'
-  ],
-  Apparel: [
-    'Shirts',
-    'Shoes',
-    'Hats',
-    'Pants',
-    'Other',
-    'All-Apparel'
-  ],
-  
-Memorabilia: [
-    'Stickers',
-    'patches',
-    'pins',
-    'Posters',
-    'Magazines',
-    'Other',
-    'All-Memorabilia'
-  ],
-
-    Protective: [
-    'Helmets',
-    'Elbow',
-    'Knee',
-    'Ankle',
-    'Wrist',
-    'Hand',
-    'Other',
-    'All-Protective'
-  ],
-
+  Skateboards: ['Old-School', 'New-School', 'Shaped', 'Freestyle', 'Mike-McGill', 'Tony-Hawk', 'All-Skateboards'],
+  Trucks: ['Old-School', 'New-School', 'Independent', 'Grind King', 'Tracker', 'Thunder', 'Venture', 'Other', 'All-Trucks'],
+  Wheels: ['Old-School', 'New-School', 'Powell', 'Bones', 'Spitfire', 'OJ', 'Other', 'All-Wheels'],
+  Accessories: ['Bearings', 'Grip-Tape', 'Hardware', 'Rails', 'Plastic-Guards', 'Risers', 'Tools', 'Other', 'All-Accessories'],
+  Apparel: ['Shirts', 'Shoes', 'Hats', 'Pants', 'Other', 'All-Apparel'],
+  Memorabilia: ['Stickers', 'patches', 'pins', 'Posters', 'Magazines', 'Other', 'All-Memorabilia'],
+  Protective: ['Helmets', 'Elbow', 'Knee', 'Ankle', 'Wrist', 'Hand', 'Other', 'All-Protective'],
 };
 
 export default function EditItem() {
@@ -90,10 +27,14 @@ export default function EditItem() {
     name: '',
     description: '',
     groups: [],
-    subGroups: []
+    subGroups: [],
+    imageUrl: '',
+    thumbnailUrl: ''
   });
 
-  // Fetch the document on mount
+  const [fullFile, setFullFile] = useState(null);
+  const [thumbFile, setThumbFile] = useState(null);
+
   useEffect(() => {
     const fetchDoc = async () => {
       try {
@@ -108,7 +49,9 @@ export default function EditItem() {
           name: data.name || '',
           description: data.description || '',
           groups: data.groups || [],
-          subGroups: data.subGroups || []
+          subGroups: data.subGroups || [],
+          imageUrl: data.imageUrl || '',
+          thumbnailUrl: data.thumbnailUrl || ''
         });
       } catch (error) {
         console.error('Error fetching document:', error);
@@ -120,35 +63,27 @@ export default function EditItem() {
     fetchDoc();
   }, [id]);
 
-  // Handle form changes
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
     if (type === 'checkbox') {
       if (name === 'groups') {
         if (checked) {
-          const parent = value;
-          const allSub = GROUPS[parent].find(s => s.startsWith('All-'));
+          const allSub = GROUPS[value].find(s => s.startsWith('All-'));
           setForm(prev => ({
             ...prev,
-            groups: [...prev.groups, parent],
-            subGroups: allSub
-              ? [...new Set([...prev.subGroups, allSub])]
-              : prev.subGroups
+            groups: [...prev.groups, value],
+            subGroups: allSub ? [...new Set([...prev.subGroups, allSub])] : prev.subGroups
           }));
         } else {
-          const parent = value;
           setForm(prev => ({
             ...prev,
-            groups: prev.groups.filter(g => g !== parent),
-            subGroups: prev.subGroups.filter(sub => !GROUPS[parent].includes(sub))
+            groups: prev.groups.filter(g => g !== value),
+            subGroups: prev.subGroups.filter(sub => !GROUPS[value].includes(sub))
           }));
         }
       } else if (name === 'subGroups') {
         if (checked) {
-          setForm(prev => ({
-            ...prev,
-            subGroups: [...prev.subGroups, value]
-          }));
+          setForm(prev => ({ ...prev, subGroups: [...prev.subGroups, value] }));
         } else {
           setForm(prev => ({
             ...prev,
@@ -161,33 +96,47 @@ export default function EditItem() {
     }
   };
 
-  // Save updates to Firestore
   const handleSave = async e => {
     e.preventDefault();
     try {
+      let newImageUrl = form.imageUrl;
+      let newThumbUrl = form.thumbnailUrl;
+
+      if (fullFile) {
+        const fullRef = ref(storage, `images/${fullFile.name}`);
+        await uploadBytes(fullRef, fullFile);
+        newImageUrl = await getDownloadURL(fullRef);
+      }
+
+      if (thumbFile) {
+        const thumbRef = ref(storage, `thumbnails/${thumbFile.name}`);
+        await uploadBytes(thumbRef, thumbFile);
+        newThumbUrl = await getDownloadURL(thumbRef);
+      }
+
       const docRef = doc(db, 'images', id);
       await updateDoc(docRef, {
         name: form.name,
         description: form.description,
         groups: form.groups,
-        subGroups: form.subGroups
+        subGroups: form.subGroups,
+        imageUrl: newImageUrl,
+        thumbnailUrl: newThumbUrl
       });
-      alert('Item updated successfully');
+
+      alert('Item updated successfully!');
       navigate('/items');
     } catch (error) {
       console.error('Error updating document:', error);
     }
   };
 
-  if (loading) {
-    return <div className="p-4 text-center">Loading…</div>;
-  }
+  if (loading) return <div className="p-4 text-center">Loading…</div>;
 
   return (
     <main className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">Edit Item</h1>
 
-      {/* Back link */}
       <div className="mb-6 text-center">
         <Link
           to="/items"
@@ -198,11 +147,8 @@ export default function EditItem() {
       </div>
 
       <form onSubmit={handleSave} className="max-w-lg mx-auto space-y-6">
-        {/* Name field */}
         <div>
-          <label className="block mb-1">
-            <strong>Name:</strong>
-          </label>
+          <label className="block mb-1 font-semibold">Name:</label>
           <input
             type="text"
             name="name"
@@ -214,11 +160,8 @@ export default function EditItem() {
           />
         </div>
 
-        {/* Description field */}
         <div>
-          <label className="block mb-1">
-            <strong>Description:</strong>
-          </label>
+          <label className="block mb-1 font-semibold">Description:</label>
           <textarea
             name="description"
             value={form.description}
@@ -229,12 +172,47 @@ export default function EditItem() {
           />
         </div>
 
-        {/* Groups & SubGroups */}
+        {/* Full image section */}
+        <div>
+          <label className="block mb-1 font-semibold">Full Image:</label>
+          {form.imageUrl && (
+            <img
+              src={form.imageUrl}
+              alt="Full"
+              className="mb-2 max-h-60 mx-auto object-contain"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={e => setFullFile(e.target.files[0])}
+            className="block"
+          />
+        </div>
+
+        {/* Thumbnail section */}
+        <div>
+          <label className="block mb-1 font-semibold">Thumbnail:</label>
+          {form.thumbnailUrl && (
+            <img
+              src={form.thumbnailUrl}
+              alt="Thumbnail"
+              className="mb-2 max-h-40 mx-auto object-contain"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={e => setThumbFile(e.target.files[0])}
+            className="block"
+          />
+        </div>
+
+        {/* Groups & Subgroups */}
         <div>
           <label className="block mb-2 font-semibold">Groups:</label>
           {Object.entries(GROUPS).map(([parentName, subArr]) => {
             const parentIsChecked = form.groups.includes(parentName);
-
             return (
               <div key={parentName} className="mb-4 border rounded p-2">
                 <label className="flex items-center space-x-2 mb-1">
@@ -248,7 +226,6 @@ export default function EditItem() {
                   />
                   <strong>{parentName}</strong>
                 </label>
-
                 <div className="ml-6 flex flex-wrap gap-2">
                   {subArr.map(subName => (
                     <label key={subName} className="flex items-center space-x-1">
@@ -272,7 +249,6 @@ export default function EditItem() {
           })}
         </div>
 
-        {/* Save button */}
         <div className="flex justify-center">
           <button
             type="submit"
@@ -285,3 +261,4 @@ export default function EditItem() {
     </main>
   );
 }
+

@@ -1,23 +1,12 @@
-// src/pages/wheels/WheelsLayout.jsx
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import ImageModal from '../../components/ImageModal';
+import React from 'react';
+import { Outlet, useOutletContext } from 'react-router-dom';
 
 export default function WheelsLayout() {
-  const [selectedItem, setSelectedItem] = useState(null);
+  const outletContext = useOutletContext();
 
   return (
-    <>
-      {/* This lightbox lives at the root so it truly overlays everything */}
-      <ImageModal
-        item={selectedItem}
-        onClose={() => setSelectedItem(null)}
-      />
-
-      {/* Your normal page content */}
-      <main className="main-page flex-1 bg-gray-100 flex items-center justify-center max-w-7xl mx-auto p-4">
-        <Outlet context={{ setSelectedItem }} />
-      </main>
-    </>
+    <main className="main-page flex-1 bg-gray-100 flex items-center justify-center max-w-7xl mx-auto p-4">
+      <Outlet context={outletContext} />
+    </main>
   );
 }
