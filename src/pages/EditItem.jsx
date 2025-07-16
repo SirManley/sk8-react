@@ -2,11 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { db, storage } from '../firebase';
-import {
-  doc,
-  getDoc,
-  updateDoc
-} from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const GROUPS = {
@@ -23,13 +19,15 @@ export default function EditItem() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+
   const [form, setForm] = useState({
     name: '',
     description: '',
     groups: [],
     subGroups: [],
     imageUrl: '',
-    thumbnailUrl: ''
+    thumbnailUrl: '',
+    youtubeUrl: '' // ✅ added field
   });
 
   const [fullFile, setFullFile] = useState(null);
@@ -51,7 +49,8 @@ export default function EditItem() {
           groups: data.groups || [],
           subGroups: data.subGroups || [],
           imageUrl: data.imageUrl || '',
-          thumbnailUrl: data.thumbnailUrl || ''
+          thumbnailUrl: data.thumbnailUrl || '',
+          youtubeUrl: data.youtubeUrl || '' // ✅ load existing YouTube URL if present
         });
       } catch (error) {
         console.error('Error fetching document:', error);
@@ -115,14 +114,21 @@ export default function EditItem() {
       }
 
       const docRef = doc(db, 'images', id);
-      await updateDoc(docRef, {
+      const updatedItem = {
         name: form.name,
         description: form.description,
         groups: form.groups,
         subGroups: form.subGroups,
         imageUrl: newImageUrl,
         thumbnailUrl: newThumbUrl
-      });
+      };
+
+      // ✅ Only include youtubeUrl if not empty
+      if (form.youtubeUrl?.trim()) {
+        updatedItem.youtubeUrl = form.youtubeUrl.trim();
+      }
+
+      await updateDoc(docRef, updatedItem);
 
       alert('Item updated successfully!');
       navigate('/items');
@@ -249,6 +255,21 @@ export default function EditItem() {
           })}
         </div>
 
+        {/* ✅ Conditionally show YouTube URL input */}
+        {form.subGroups.includes('Media') && (
+          <div>
+            <label className="block mb-1 font-semibold">YouTube URL (optional):</label>
+            <input
+              type="text"
+              name="youtubeUrl"
+              value={form.youtubeUrl}
+              onChange={handleChange}
+              placeholder="https://www.youtube.com/watch?v=xyz123abc"
+              className="border p-2 w-full"
+            />
+          </div>
+        )}
+
         <div className="flex justify-center">
           <button
             type="submit"
@@ -261,4 +282,3 @@ export default function EditItem() {
     </main>
   );
 }
-

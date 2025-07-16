@@ -1,17 +1,18 @@
 // src/components/ImageModal.jsx
 import React, { useState, useEffect } from 'react';
-import '../index.css'; // ensure your global CSS is imported
+import '../App.css';
 
 export default function ImageModal({ item, onClose }) {
   const [zoom, setZoom] = useState(1);
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
+  const [showVideo, setShowVideo] = useState(false);
 
-  // reset zoom whenever a new item opens
   useEffect(() => {
     setZoom(1);
     setOffsetX(0);
     setOffsetY(0);
+    setShowVideo(false);
   }, [item]);
 
   if (!item) return null;
@@ -34,8 +35,8 @@ export default function ImageModal({ item, onClose }) {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    setOffsetX(x / rect.width * 100);
-    setOffsetY(y / rect.height * 100);
+    setOffsetX((x / rect.width) * 100);
+    setOffsetY((y / rect.height) * 100);
     changeZoom(delta);
   };
 
@@ -43,8 +44,8 @@ export default function ImageModal({ item, onClose }) {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    setOffsetX(x / rect.width * 100);
-    setOffsetY(y / rect.height * 100);
+    setOffsetX((x / rect.width) * 100);
+    setOffsetY((y / rect.height) * 100);
   };
 
   return (
@@ -55,13 +56,19 @@ export default function ImageModal({ item, onClose }) {
     >
       <span className="close" onClick={onClose}>&times;</span>
 
-      {/* Zoom controls */}
+      {/* Controls */}
       <div className="lightbox-controls" onClick={e => e.stopPropagation()}>
         <button onClick={() => changeZoom(0.2)}>＋</button>
         <button onClick={() => changeZoom(-0.2)}>－</button>
         <button onClick={() => setZoom(1)}>⟳</button>
+        {item.youtubeUrl && (
+          <button onClick={() => setShowVideo(true)} className="media-button">
+            ▶ Media
+          </button>
+        )}
       </div>
 
+      {/* Image */}
       <img
         className="lightbox-content"
         id="lightbox-img"
@@ -75,9 +82,30 @@ export default function ImageModal({ item, onClose }) {
         onMouseMove={handleMouseMove}
       />
 
-      {item.description && (
-        <div id="caption">{item.description}</div>
+      {/* Caption */}
+      {item.description && <div id="caption">{item.description}</div>}
+
+      {/* YouTube Video Modal */}
+      {showVideo && (
+        <div className="video-modal" onClick={() => setShowVideo(false)}>
+          <div className="video-content" onClick={(e) => e.stopPropagation()}>
+            <iframe
+              width="560"
+              height="315"
+              src={item.youtubeUrl.replace('watch?v=', 'embed/')}
+              title="YouTube video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+            <button className="close-button" onClick={() => setShowVideo(false)}>
+              ✖
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
 }
+
+

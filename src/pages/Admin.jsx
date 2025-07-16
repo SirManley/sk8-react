@@ -7,82 +7,14 @@ import { collection, addDoc } from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth'; // 🔐 added
 
 const GROUPS = {
-  Skateboards: [
-    'Old-School',
-    'New-School',
-    'Shaped',
-    'Freestyle',
-    'Mike-McGill',
-    'Tony-Hawk',
-    'All-Skateboards'
-  ],
-  Trucks: [
-    'Old-School',
-    'New-School',
-    'Independent',
-    'Grind King',
-    'Tracker',
-    'Thunder',
-    'Venture',
-    'Other',
-    'All-Trucks'
-  ],
-  Wheels: [
-    'Old-School',
-    'New-School',
-    'Powell',
-    'Bones',
-    'Spitfire',
-    'OJ',
-    'Other',
-    'All-Wheels'
-  ],
+  Skateboards: ['Old-School', 'New-School', 'Shaped', 'Freestyle', 'Mike-McGill', 'Tony-Hawk', 'All-Skateboards'],
+  Trucks: ['Old-School', 'New-School', 'Independent', 'Grind King', 'Tracker', 'Thunder', 'Venture', 'Other', 'All-Trucks'],
+  Wheels: ['Old-School', 'New-School', 'Powell', 'Bones', 'Spitfire', 'OJ', 'Other', 'All-Wheels'],
   'Soft-Goods': ['Apparel', 'Safety-Gear', 'Patches'],
-  Accessories: [
-    'Bearings',
-    'Grip-Tape',
-    'Hardware',
-    'Rails',
-    'Plastic-Guards',
-    'Risers',
-    'Tools',
-    'Other',
-    'All-Accessories'
-  ],
-  Apparel: [
-    'Shirts',
-    'Shoes',
-    'Hats',
-    'Pants',
-    'Other',
-    'All-Apparel'
-  ],
-  
-Memorabilia: [
-    'Stickers',
-    'Patches',
-    'Pins',
-    'Posters',
-    'Magazines',
-    'Media',
-    'Other',
-    'All-Memorabilia'
-  ],
-
-  Protective: [
-    'Helmets',
-    'Elbow',
-    'Knee',
-    'Ankle',
-    'Wrist',
-    'Hand',
-    'Other',
-    'All-Protective'
-  ],
-
-
-
-
+  Accessories: ['Bearings', 'Grip-Tape', 'Hardware', 'Rails', 'Plastic-Guards', 'Risers', 'Tools', 'Other', 'All-Accessories'],
+  Apparel: ['Shirts', 'Shoes', 'Hats', 'Pants', 'Other', 'All-Apparel'],
+  Memorabilia: ['Stickers', 'Patches', 'Pins', 'Posters', 'Magazines', 'Media', 'Other', 'All-Memorabilia'],
+  Protective: ['Helmets', 'Elbow', 'Knee', 'Ankle', 'Wrist', 'Hand', 'Other', 'All-Protective'],
 };
 
 export default function Admin() {
@@ -90,12 +22,13 @@ export default function Admin() {
     name: '',
     description: '',
     groups: [],
-    subGroups: []
+    subGroups: [],
+    youtubeUrl: '' // ✅ Added field
   });
+
   const [fullFile, setFullFile] = useState(null);
   const [thumbFile, setThumbFile] = useState(null);
 
-  // 🔐 Logout handler
   const handleLogout = () => {
     const auth = getAuth();
     signOut(auth).then(() => {
@@ -108,24 +41,19 @@ export default function Admin() {
 
     if (type === 'checkbox') {
       if (name === 'groups') {
+        const parent = value;
         if (checked) {
-          const parent = value;
           const allSub = GROUPS[parent].find(s => s.startsWith('All-'));
           setForm(prev => ({
             ...prev,
             groups: [...prev.groups, parent],
-            subGroups: allSub
-              ? [...new Set([...prev.subGroups, allSub])]
-              : prev.subGroups
+            subGroups: allSub ? [...new Set([...prev.subGroups, allSub])] : prev.subGroups
           }));
         } else {
-          const parent = value;
           setForm(prev => ({
             ...prev,
             groups: prev.groups.filter(g => g !== parent),
-            subGroups: prev.subGroups.filter(
-              sub => !GROUPS[parent].includes(sub)
-            )
+            subGroups: prev.subGroups.filter(sub => !GROUPS[parent].includes(sub))
           }));
         }
       } else if (name === 'subGroups') {
@@ -159,7 +87,7 @@ export default function Admin() {
     const fullUrl = await getDownloadURL(fullRef);
     const thumbUrl = await getDownloadURL(thumbRef);
 
-    await addDoc(collection(db, 'images'), {
+    const newItem = {
       name: form.name,
       description: form.description,
       imageUrl: fullUrl,
@@ -167,17 +95,23 @@ export default function Admin() {
       groups: form.groups,
       subGroups: form.subGroups,
       createdAt: new Date()
-    });
+    };
+
+    // ✅ Only include youtubeUrl if it's not empty
+    if (form.youtubeUrl?.trim()) {
+      newItem.youtubeUrl = form.youtubeUrl.trim();
+    }
+
+    await addDoc(collection(db, 'images'), newItem);
 
     alert('Image uploaded successfully!');
-    setForm({ name: '', description: '', groups: [], subGroups: [] });
+    setForm({ name: '', description: '', groups: [], subGroups: [], youtubeUrl: '' });
     setFullFile(null);
     setThumbFile(null);
   };
 
   return (
     <main className="admin-page container mx-auto p-4">
-      {/* Header row with logout button */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Admin Upload</h1>
         <button
@@ -188,7 +122,6 @@ export default function Admin() {
         </button>
       </div>
 
-      {/* View Items */}
       <div className="mb-6">
         <Link
           to="/items"
@@ -198,54 +131,25 @@ export default function Admin() {
         </Link>
       </div>
 
-      {/* Upload Form */}
       <form onSubmit={handleUpload} className="space-y-4">
         <div>
-          <label className="block mb-1">
-            <strong> Name: </strong>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            className="border p-2 w-full"
-          />
+          <label className="block mb-1"><strong> Name: </strong></label>
+          <input type="text" name="name" value={form.name} onChange={handleChange} required className="border p-2 w-full" />
         </div>
 
         <div>
-          <label className="block mb-1">
-            <strong> Description: </strong>
-          </label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            className="border p-2 w-full"
-          />
+          <label className="block mb-1"><strong> Description: </strong></label>
+          <textarea name="description" value={form.description} onChange={handleChange} className="border p-2 w-full" />
         </div>
 
         <div>
           <label className="block mb-1">Full Image:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={e => setFullFile(e.target.files[0])}
-            required
-            className="block"
-          />
+          <input type="file" accept="image/*" onChange={e => setFullFile(e.target.files[0])} required className="block" />
         </div>
 
         <div>
           <label className="block mb-1">Thumbnail:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={e => setThumbFile(e.target.files[0])}
-            required
-            className="block"
-          />
+          <input type="file" accept="image/*" onChange={e => setThumbFile(e.target.files[0])} required className="block" />
         </div>
 
         <div>
@@ -267,10 +171,7 @@ export default function Admin() {
                 </label>
                 <div className="ml-6 flex flex-wrap gap-2">
                   {subArr.map(subName => (
-                    <label
-                      key={subName}
-                      className="flex items-center space-x-1"
-                    >
+                    <label key={subName} className="flex items-center space-x-1">
                       <input
                         type="checkbox"
                         name="subGroups"
@@ -280,15 +181,7 @@ export default function Admin() {
                         disabled={!parentIsChecked}
                         className="form-checkbox disabled:opacity-50"
                       />
-                      <span
-                        className={
-                          parentIsChecked
-                            ? 'text-gray-700'
-                            : 'text-gray-400'
-                        }
-                      >
-                        {subName}
-                      </span>
+                      <span className={parentIsChecked ? 'text-gray-700' : 'text-gray-400'}>{subName}</span>
                     </label>
                   ))}
                 </div>
@@ -297,10 +190,22 @@ export default function Admin() {
           })}
         </div>
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
+        {/* ✅ Conditionally show YouTube URL input when Media is selected */}
+        {form.subGroups.includes("Media") && (
+          <div>
+            <label className="block mb-1">YouTube URL (optional):</label>
+            <input
+              type="text"
+              name="youtubeUrl"
+              value={form.youtubeUrl}
+              onChange={handleChange}
+              placeholder="https://www.youtube.com/watch?v=xyz123abc"
+              className="border p-2 w-full"
+            />
+          </div>
+        )}
+
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
           Upload
         </button>
       </form>
