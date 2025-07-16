@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/sk8-react/static/css/main.3f204b01.css",
-    "main.js": "/sk8-react/static/js/main.a67d4575.js",
+    "main.js": "/sk8-react/static/js/main.922c3b3f.js",
     "index.html": "/sk8-react/index.html",
     "main.3f204b01.css.map": "/sk8-react/static/css/main.3f204b01.css.map",
-    "main.a67d4575.js.map": "/sk8-react/static/js/main.a67d4575.js.map"
+    "main.922c3b3f.js.map": "/sk8-react/static/js/main.922c3b3f.js.map"
   },
   "entrypoints": [
     "static/css/main.3f204b01.css",
-    "static/js/main.a67d4575.js"
+    "static/js/main.922c3b3f.js"
   ]
 }
