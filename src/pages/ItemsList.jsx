@@ -162,7 +162,7 @@ export default function ItemsList() {
                 <th className="border px-2 py-1">Name</th>
                 <th className="border px-2 py-1">Description</th>
                 <th className="border px-2 py-1">Groups</th>
-                <th className="border px-2 py-1">Thumbnail</th>
+                <th className="border px-2 py-1 w-[200px]">Images</th>
                 <th className="border px-2 py-1">Actions</th>
               </tr>
             </thead>
@@ -173,19 +173,63 @@ export default function ItemsList() {
                   <td className="border px-2 py-1 truncate max-w-xs">{item.description}</td>
                   <td className="border px-2 py-1">{item.groups?.join(', ')}</td>
                   <td className="border px-2 py-1">
-                    {item.thumbnailUrl ? (
-                      <img
-                        src={item.thumbnailUrl}
-                        alt={item.name}
-                        className="block object-cover mx-auto rounded"
-                        style={{ width: 'auto', height: '9rem' }}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="text-sm text-gray-500">No thumbnail</div>
-                    )}
+                    <div className="flex flex-row justify-center gap-4">
+                      {/* Thumbnail */}
+                      <div className="flex flex-col items-center w-[6rem]">
+                        {item.thumbnailUrl ? (
+                          <>
+                            <img
+                              src={item.thumbnailUrl}
+                              alt={`${item.name} thumbnail`}
+                              className="object-cover rounded"
+                              style={{ width: '6rem', height: '6rem' }}
+                              loading="lazy"
+                            />
+                            <div className="mt-1 text-xs text-gray-600 text-center whitespace-nowrap">
+                              Thumbnail
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-[6rem] h-[6rem] bg-gray-100 flex items-center justify-center text-sm text-gray-400 rounded">
+                              No thumbnail
+                            </div>
+                            <div className="mt-1 text-xs text-gray-600 text-center whitespace-nowrap">
+                              Thumbnail
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Full Image */}
+                      <div className="flex flex-col items-center w-[6rem]">
+                        {item.imageUrl ? (
+                          <>
+                            <img
+                              src={item.imageUrl}
+                              alt={`${item.name} full`}
+                              className="object-cover rounded"
+                              style={{ width: '6rem', height: '6rem' }}
+                              loading="lazy"
+                            />
+                            <div className="mt-1 text-xs text-gray-600 text-center whitespace-nowrap">
+                              Full Image
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-[6rem] h-[6rem] bg-gray-100 flex items-center justify-center text-sm text-gray-400 rounded">
+                              No full image
+                            </div>
+                            <div className="mt-1 text-xs text-gray-600 text-center whitespace-nowrap">
+                              Full Image
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </td>
-                  <td className="border px-2 py-1 space-y-1">
+                  <td className="border px-2 py-1 space-y-1 text-center">
                     {item.imageUrl && (
                       <a
                         href={item.imageUrl}
