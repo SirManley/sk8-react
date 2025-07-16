@@ -51,6 +51,7 @@ export const subGroupMap = {
   'memorabilia/pins' : 'Pins',
   'memorabilia/posters' : 'Posters',
   'memorabilia/magazines' : 'Magazines',
+  'memorabilia/media' : 'Media',  
   'memorabilia/other' : 'Other',
   'memorabilia/all-memorabilia' : 'All-Memorabilia',
 

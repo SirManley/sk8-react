@@ -15,7 +15,7 @@ const GROUPS = {
   Wheels: ['Old-School', 'New-School', 'Powell', 'Bones', 'Spitfire', 'OJ', 'Other', 'All-Wheels'],
   Accessories: ['Bearings', 'Grip-Tape', 'Hardware', 'Rails', 'Plastic-Guards', 'Risers', 'Tools', 'Other', 'All-Accessories'],
   Apparel: ['Shirts', 'Shoes', 'Hats', 'Pants', 'Other', 'All-Apparel'],
-  Memorabilia: ['Stickers', 'patches', 'pins', 'Posters', 'Magazines', 'Other', 'All-Memorabilia'],
+  Memorabilia: ['Stickers', 'patches', 'Pins', 'Posters', 'Magazines','Media', 'Other', 'All-Memorabilia'],
   Protective: ['Helmets', 'Elbow', 'Knee', 'Ankle', 'Wrist', 'Hand', 'Other', 'All-Protective'],
 };
 
