@@ -68,3 +68,27 @@
   border-radius: 50%;
 }
 
+.featured-home-image,
+.slideshow-image {
+  display: block;
+  margin: 0 auto;
+  max-height: 500px; /* Cap height */
+  max-width: 100%;    /* Optional cap for very wide images */
+  width: auto;
+  object-fit: contain;
+  cursor: pointer;
+  transition: opacity 0.3s ease-in-out;
+}
+
+
+.slideshow-container {
+  text-align: center;
+  position: relative;
+}
+
+.slideshow-caption {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  color: #333;
+}
+
