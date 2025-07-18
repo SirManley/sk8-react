@@ -15,6 +15,17 @@ export default function ImageModal({ item, onClose }) {
     setShowVideo(false);
   }, [item]);
 
+  const getEmbedUrl = (url) => {
+    try {
+      const match = url.match(/(?:v=|\.be\/)([a-zA-Z0-9_-]{11})/);
+      if (!match) return null;
+      const videoId = match[1];
+      return `https://www.youtube.com/embed/${videoId}`;
+    } catch {
+      return null;
+    }
+  };
+
   if (!item) return null;
 
   const src =
@@ -87,23 +98,34 @@ export default function ImageModal({ item, onClose }) {
 
       {/* YouTube Video Modal */}
       {showVideo && (
-        <div className="video-modal" onClick={() => setShowVideo(false)}>
-          <div className="video-content" onClick={(e) => e.stopPropagation()}>
-            <iframe
-              width="560"
-              height="315"
-              src={item.youtubeUrl.replace('watch?v=', 'embed/')}
-              title="YouTube video"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-            <button className="close-button" onClick={() => setShowVideo(false)}>
-              ✖
-            </button>
-          </div>
-        </div>
-      )}
+  <div className="video-modal" onClick={() => setShowVideo(false)}>
+    <div className="video-content" onClick={(e) => e.stopPropagation()}>
+      <iframe
+        width="560"
+        height="315"
+        src={getEmbedUrl(item.youtubeUrl)}
+        title="YouTube video"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      ></iframe>
+      <div className="text-center mt-2">
+        <a
+          href={item.youtubeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 underline"
+        >
+          🔗 Watch on YouTube
+        </a>
+      </div>
+      <button className="close-button" onClick={() => setShowVideo(false)}>
+        ✖
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
