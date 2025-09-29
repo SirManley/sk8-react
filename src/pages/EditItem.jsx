@@ -27,11 +27,13 @@ export default function EditItem() {
     subGroups: [],
     imageUrl: '',
     thumbnailUrl: '',
-    youtubeUrl: '' // ✅ added field
+    images: [],       // NEW
+    youtubeUrl: ''
   });
 
   const [fullFile, setFullFile] = useState(null);
   const [thumbFile, setThumbFile] = useState(null);
+  const [newGalleryFiles, setNewGalleryFiles] = useState([]); // NEW: files to add
 
   useEffect(() => {
     const fetchDoc = async () => {
@@ -43,14 +45,22 @@ export default function EditItem() {
           return;
         }
         const data = snap.data();
+
+        // Build images[] with back-compat if missing
+        let imagesArr = Array.isArray(data.images) ? data.images : [];
+        if (!imagesArr.length && data.imageUrl) {
+          imagesArr = [{ src: data.imageUrl, alt: data.name || '' }];
+        }
+
         setForm({
           name: data.name || '',
           description: data.description || '',
           groups: data.groups || [],
           subGroups: data.subGroups || [],
-          imageUrl: data.imageUrl || '',
-          thumbnailUrl: data.thumbnailUrl || '',
-          youtubeUrl: data.youtubeUrl || '' // ✅ load existing YouTube URL if present
+          imageUrl: data.imageUrl || '',       // legacy
+          thumbnailUrl: data.thumbnailUrl || '', // legacy
+          images: imagesArr,                   // unified gallery
+          youtubeUrl: data.youtubeUrl || ''
         });
       } catch (error) {
         console.error('Error fetching document:', error);
@@ -81,18 +91,30 @@ export default function EditItem() {
           }));
         }
       } else if (name === 'subGroups') {
-        if (checked) {
-          setForm(prev => ({ ...prev, subGroups: [...prev.subGroups, value] }));
-        } else {
-          setForm(prev => ({
-            ...prev,
-            subGroups: prev.subGroups.filter(s => s !== value)
-          }));
-        }
+        setForm(prev => ({
+          ...prev,
+          subGroups: checked
+            ? [...prev.subGroups, value]
+            : prev.subGroups.filter(s => s !== value)
+        }));
       }
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
     }
+  };
+
+  const uploadToStorage = async (pathPrefix, file) => {
+    const safeName = `${Date.now()}-${file.name}`;
+    const fileRef = ref(storage, `${pathPrefix}/${safeName}`);
+    await uploadBytes(fileRef, file);
+    return getDownloadURL(fileRef);
+  };
+
+  const handleRemoveExistingImage = (idx) => {
+    setForm(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== idx)
+    }));
   };
 
   const handleSave = async e => {
@@ -101,39 +123,66 @@ export default function EditItem() {
       let newImageUrl = form.imageUrl;
       let newThumbUrl = form.thumbnailUrl;
 
+      // If user chose new main full image, upload it and update legacy + first slide
       if (fullFile) {
-        const fullRef = ref(storage, `images/${fullFile.name}`);
-        await uploadBytes(fullRef, fullFile);
-        newImageUrl = await getDownloadURL(fullRef);
+        const fullUrl = await uploadToStorage('images', fullFile);
+        newImageUrl = fullUrl;
+
+        // ensure first slide reflects the new main image
+        let nextImages = [...form.images];
+        if (nextImages.length) {
+          nextImages[0] = { src: fullUrl, alt: form.name || nextImages[0].alt || '' };
+        } else {
+          nextImages = [{ src: fullUrl, alt: form.name || '' }];
+        }
+        setForm(prev => ({ ...prev, images: nextImages })); // keep local state in sync
       }
 
+      // If user chose new thumbnail
       if (thumbFile) {
-        const thumbRef = ref(storage, `thumbnails/${thumbFile.name}`);
-        await uploadBytes(thumbRef, thumbFile);
-        newThumbUrl = await getDownloadURL(thumbRef);
+        const thumbUrl = await uploadToStorage('thumbnails', thumbFile);
+        newThumbUrl = thumbUrl;
       }
 
-      const docRef = doc(db, 'images', id);
+      // Upload any newly added gallery files (append to end)
+      const uploadedNew = [];
+      for (const f of newGalleryFiles) {
+        const url = await uploadToStorage('images', f);
+        uploadedNew.push({ src: url, alt: `${form.name || 'image'} (extra)` });
+      }
+
+      // Build final images[] (after possible main image change & removals)
+      let finalImages = form.images;
+      if (uploadedNew.length) {
+        finalImages = [...finalImages, ...uploadedNew];
+      }
+
+      // Compose update object
       const updatedItem = {
         name: form.name,
         description: form.description,
         groups: form.groups,
         subGroups: form.subGroups,
-        imageUrl: newImageUrl,
-        thumbnailUrl: newThumbUrl
+        imageUrl: newImageUrl,     // legacy
+        thumbnailUrl: newThumbUrl, // legacy
+        images: finalImages        // NEW unified gallery
       };
 
-      // ✅ Only include youtubeUrl if not empty
       if (form.youtubeUrl?.trim()) {
         updatedItem.youtubeUrl = form.youtubeUrl.trim();
+      } else {
+        // If you want to remove the field when cleared, uncomment next line:
+        // updatedItem.youtubeUrl = firebase.firestore.FieldValue.delete();
       }
 
+      const docRef = doc(db, 'images', id);
       await updateDoc(docRef, updatedItem);
 
       alert('Item updated successfully!');
       navigate('/items');
     } catch (error) {
       console.error('Error updating document:', error);
+      alert('Error updating item. See console for details.');
     }
   };
 
@@ -152,18 +201,32 @@ export default function EditItem() {
         </Link>
       </div>
 
-      <form onSubmit={handleSave} className="max-w-lg mx-auto space-y-6">
-        <div>
-          <label className="block mb-1 font-semibold">Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            maxLength={100}
-            className="border p-2 w-full"
-          />
+      <form onSubmit={handleSave} className="max-w-3xl mx-auto space-y-6">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block mb-1 font-semibold">Name:</label>
+            <input
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+              maxLength={100}
+              className="border p-2 w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-semibold">YouTube URL (optional):</label>
+            <input
+              type="text"
+              name="youtubeUrl"
+              value={form.youtubeUrl}
+              onChange={handleChange}
+              placeholder="https://www.youtube.com/watch?v=xyz123abc"
+              className="border p-2 w-full"
+            />
+          </div>
         </div>
 
         <div>
@@ -178,40 +241,86 @@ export default function EditItem() {
           />
         </div>
 
-        {/* Full image section */}
-        <div>
-          <label className="block mb-1 font-semibold">Full Image:</label>
-          {form.imageUrl && (
-            <img
-              src={form.imageUrl}
-              alt="Full"
-              className="mb-2 max-h-60 mx-auto object-contain"
+        {/* Legacy Full image (main) */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block mb-1 font-semibold">Full Image (main):</label>
+            {form.imageUrl && (
+              <img
+                src={form.imageUrl}
+                alt="Full"
+                className="mb-2 max-h-60 mx-auto object-contain"
+              />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={e => setFullFile(e.target.files[0])}
+              className="block"
             />
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={e => setFullFile(e.target.files[0])}
-            className="block"
-          />
+            <p className="text-xs text-gray-600 mt-1">If you choose a new main image, it will replace the first slide and legacy full image.</p>
+          </div>
+
+          {/* Legacy Thumbnail */}
+          <div>
+            <label className="block mb-1 font-semibold">Thumbnail:</label>
+            {form.thumbnailUrl && (
+              <img
+                src={form.thumbnailUrl}
+                alt="Thumbnail"
+                className="mb-2 max-h-40 mx-auto object-contain"
+              />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={e => setThumbFile(e.target.files[0])}
+              className="block"
+            />
+          </div>
         </div>
 
-        {/* Thumbnail section */}
+        {/* NEW: Existing gallery preview with remove controls */}
         <div>
-          <label className="block mb-1 font-semibold">Thumbnail:</label>
-          {form.thumbnailUrl && (
-            <img
-              src={form.thumbnailUrl}
-              alt="Thumbnail"
-              className="mb-2 max-h-40 mx-auto object-contain"
-            />
+          <label className="block mb-2 font-semibold">Gallery Images:</label>
+          {form.images?.length ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {form.images.map((img, idx) => (
+                <div key={`${img.src}-${idx}`} className="border rounded p-2 text-center">
+                  <img
+                    src={img.src}
+                    alt={img.alt || `image ${idx + 1}`}
+                    className="h-32 w-full object-contain mb-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveExistingImage(idx)}
+                    className="text-xs bg-red-500 text-white px-2 py-1 rounded"
+                    disabled={form.images.length === 1 && idx === 0}
+                    title={form.images.length === 1 && idx === 0 ? "Cannot remove the only image" : "Remove this image"}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">No gallery images yet.</p>
           )}
+          <p className="text-xs text-gray-600 mt-1">Tip: keep at least one image.</p>
+        </div>
+
+        {/* NEW: Add more gallery images */}
+        <div>
+          <label className="block mb-1 font-semibold">Add More Images:</label>
           <input
             type="file"
             accept="image/*"
-            onChange={e => setThumbFile(e.target.files[0])}
+            multiple
+            onChange={e => setNewGalleryFiles(Array.from(e.target.files))}
             className="block"
           />
+          <p className="text-xs text-gray-600 mt-1">You can select multiple files; they’ll be appended to the end of the gallery.</p>
         </div>
 
         {/* Groups & Subgroups */}
@@ -255,21 +364,6 @@ export default function EditItem() {
           })}
         </div>
 
-        {/* ✅ Conditionally show YouTube URL input */}
-        {form.subGroups.includes('Media') && (
-          <div>
-            <label className="block mb-1 font-semibold">YouTube URL (optional):</label>
-            <input
-              type="text"
-              name="youtubeUrl"
-              value={form.youtubeUrl}
-              onChange={handleChange}
-              placeholder="https://www.youtube.com/watch?v=xyz123abc"
-              className="border p-2 w-full"
-            />
-          </div>
-        )}
-
         <div className="flex justify-center">
           <button
             type="submit"
@@ -282,3 +376,4 @@ export default function EditItem() {
     </main>
   );
 }
+

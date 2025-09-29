@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { storage, db } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
-import { getAuth, signOut } from 'firebase/auth'; // 🔐 added
+import { getAuth, signOut } from 'firebase/auth';
 
 const GROUPS = {
   Skateboards: ['Old-School', 'New-School', 'Shaped', 'Freestyle', 'Mike-McGill', 'Tony-Hawk', 'All-Skateboards'],
@@ -23,11 +23,12 @@ export default function Admin() {
     description: '',
     groups: [],
     subGroups: [],
-    youtubeUrl: '' // ✅ Added field
+    youtubeUrl: ''
   });
 
   const [fullFile, setFullFile] = useState(null);
   const [thumbFile, setThumbFile] = useState(null);
+  const [extraFiles, setExtraFiles] = useState([]); // NEW: additional images (optional)
 
   const handleLogout = () => {
     const auth = getAuth();
@@ -57,21 +58,23 @@ export default function Admin() {
           }));
         }
       } else if (name === 'subGroups') {
-        if (checked) {
-          setForm(prev => ({
-            ...prev,
-            subGroups: [...prev.subGroups, value]
-          }));
-        } else {
-          setForm(prev => ({
-            ...prev,
-            subGroups: prev.subGroups.filter(s => s !== value)
-          }));
-        }
+        setForm(prev => ({
+          ...prev,
+          subGroups: checked
+            ? [...prev.subGroups, value]
+            : prev.subGroups.filter(s => s !== value)
+        }));
       }
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
     }
+  };
+
+  const uploadToStorage = async (pathPrefix, file) => {
+    const safeName = `${Date.now()}-${file.name}`;
+    const fileRef = ref(storage, `${pathPrefix}/${safeName}`);
+    await uploadBytes(fileRef, file);
+    return getDownloadURL(fileRef);
   };
 
   const handleUpload = async e => {
@@ -79,25 +82,34 @@ export default function Admin() {
     if (!fullFile || !thumbFile)
       return alert('Select both images first.');
 
-    const fullRef = ref(storage, `images/${fullFile.name}`);
-    const thumbRef = ref(storage, `thumbnails/${thumbFile.name}`);
-    await uploadBytes(fullRef, fullFile);
-    await uploadBytes(thumbRef, thumbFile);
+    // 1) Upload primary full + thumbnail
+    const fullUrl = await uploadToStorage('images', fullFile);
+    const thumbUrl = await uploadToStorage('thumbnails', thumbFile);
 
-    const fullUrl = await getDownloadURL(fullRef);
-    const thumbUrl = await getDownloadURL(thumbRef);
+    // 2) Upload optional extra images (if any)
+    const extraUrls = [];
+    for (const f of extraFiles) {
+      if (!f) continue;
+      const url = await uploadToStorage('images', f);
+      extraUrls.push(url);
+    }
 
+    // 3) Build images[] array: first = fullUrl, then extras
+    const images = [{ src: fullUrl, alt: form.name }];
+    extraUrls.forEach((u, i) => images.push({ src: u, alt: `${form.name} (extra ${i + 1})` }));
+
+    // 4) Compose the Firestore doc (keeps legacy fields + new images[])
     const newItem = {
       name: form.name,
       description: form.description,
-      imageUrl: fullUrl,
-      thumbnailUrl: thumbUrl,
+      imageUrl: fullUrl,       // legacy single full image
+      thumbnailUrl: thumbUrl,  // legacy single thumb
+      images,                  // NEW: gallery images
       groups: form.groups,
       subGroups: form.subGroups,
       createdAt: new Date()
     };
 
-    // ✅ Only include youtubeUrl if it's not empty
     if (form.youtubeUrl?.trim()) {
       newItem.youtubeUrl = form.youtubeUrl.trim();
     }
@@ -108,6 +120,7 @@ export default function Admin() {
     setForm({ name: '', description: '', groups: [], subGroups: [], youtubeUrl: '' });
     setFullFile(null);
     setThumbFile(null);
+    setExtraFiles([]);
   };
 
   return (
@@ -133,12 +146,12 @@ export default function Admin() {
 
       <form onSubmit={handleUpload} className="space-y-4">
         <div>
-          <label className="block mb-1"><strong> Name: </strong></label>
+          <label className="block mb-1"><strong>Name:</strong></label>
           <input type="text" name="name" value={form.name} onChange={handleChange} required className="border p-2 w-full" />
         </div>
 
         <div>
-          <label className="block mb-1"><strong> Description: </strong></label>
+          <label className="block mb-1"><strong>Description:</strong></label>
           <textarea name="description" value={form.description} onChange={handleChange} className="border p-2 w-full" />
         </div>
 
@@ -150,6 +163,19 @@ export default function Admin() {
         <div>
           <label className="block mb-1">Thumbnail:</label>
           <input type="file" accept="image/*" onChange={e => setThumbFile(e.target.files[0])} required className="block" />
+        </div>
+
+        {/* NEW: Additional gallery images (optional, multiple) */}
+        <div>
+          <label className="block mb-1">Additional Images (optional):</label>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={e => setExtraFiles(Array.from(e.target.files))}
+            className="block"
+          />
+          <p className="text-xs text-gray-600 mt-1">You can select multiple files. These will appear as extra slides in the lightbox.</p>
         </div>
 
         <div>
@@ -190,7 +216,7 @@ export default function Admin() {
           })}
         </div>
 
-        {/* ✅ Conditionally show YouTube URL input when Media is selected */}
+        {/* Conditionally show YouTube URL input when Media is selected */}
         {form.subGroups.includes("Media") && (
           <div>
             <label className="block mb-1">YouTube URL (optional):</label>
