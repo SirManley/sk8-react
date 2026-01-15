@@ -31,6 +31,7 @@ export default function HeaderNav({ setSelectedGroup }) {
           <li><Link to="/apparel" onClick={() => setSelectedGroup("Apparel")}>Apparel</Link></li>
           <li><Link to="/memorabilia" onClick={() => setSelectedGroup("Memorabilia")}>Memorabilia</Link></li>
           <li><Link to="/protective" onClick={() => setSelectedGroup("Protective")}>Protective</Link></li>
+          <li><Link to="/stories">Stories</Link></li>      
           <li><Link to="/admin" onClick={() => setSelectedGroup(null)}>Admin</Link></li>
           <li>
             <button
