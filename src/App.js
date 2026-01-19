@@ -1,5 +1,10 @@
-import React, { useState } from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
@@ -39,8 +44,7 @@ import Stories from "./pages/Stories/Stories";
 import StoryDetail from "./pages/Stories/StoryDetail";
 import StoriesLayout from "./pages/Stories/StoriesLayout";
 
-
-
+import GleamingIntro from "./components/GleamingIntro";
 
 import RequireAuth from "./components/RequireAuth";
 import Login from "./pages/Login";
@@ -50,11 +54,38 @@ import SearchResults from "./pages/SearchResults";
 import AdminStories from "./pages/AdminStories";
 import EditStory from "./pages/EditStory";
 
-function App() {
+/**
+ * We put the intro logic in a child component so we can use useLocation()
+ * (Router must wrap it before useLocation works).
+ */
+function AppRoutes() {
+  const location = useLocation();
+
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showIntro, setShowIntro] = useState(false);
+
+  // Only show intro on Home route
+  const isHome = location.pathname === "/";
+
+  useEffect(() => {
+    // ✅ Show intro when on home, hide it everywhere else
+    // ✅ NO timeout here — intro stays until user clicks ENTER
+    if (isHome) {
+      setShowIntro(true);
+    } else {
+      setShowIntro(false);
+    }
+  }, [isHome]);
 
   return (
-    <Router>
+    <>
+      {showIntro && (
+        <GleamingIntro
+          onFinish={() => setShowIntro(false)}
+          enterDelayMs={3000} // change this to 7000 / 10000 etc if you want longer
+        />
+      )}
+
       <Routes>
         {/* 🔐 Login page - outside of MainLayout */}
         <Route path="/login" element={<Login />} />
@@ -127,7 +158,7 @@ function App() {
             <Route path=":category" element={<ProtectiveCategory />} />
           </Route>
 
-          {/* ✅ Stories (now centered like Trucks via StoriesLayout) */}
+          {/* Stories */}
           <Route path="stories" element={<StoriesLayout />}>
             <Route index element={<Stories />} />
             <Route path=":slug" element={<StoryDetail />} />
@@ -144,9 +175,16 @@ function App() {
           />
         </Route>
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppRoutes />
     </Router>
   );
 }
 
 export default App;
-
